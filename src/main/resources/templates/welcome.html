@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>SimpleFlow登录</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+    <script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/jsencrypt.min.js}"></script>
+    <script type="text/javascript">
+        var encrypt = new JSEncrypt();
+        var key = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC+K3y4fL71dFhFYC9c9bea9wPH" + "\r" +
+            "youU86VI0nI1GtDiMbSd3/mFcf/Z14hixordW8W8Q0BftncjcbIOHOeHDK074hpV" + "\r" +
+            "bMdJTgadisuksX1fISp5CXa5ETsDcHa6usb1wGd2EFSo8ws5Jfi5oGZVgRzF3YLI" + "\r" +
+            "KgxYn+NZu7cvHOD0GwIDAQAB" + "\r";
+        encrypt.setPublicKey(key);
+        function check(){
+            var val=encrypt.encrypt($("#password").val());
+            var passW=encodeURI(val);
+            $("#password").val(passW);
+            return true;
+        };
+    </script>
+</head>
+<body>
+<!--login-->
+<form id="login" method="POST" th:action="@{/login}" onsubmit="return check()">
+    <table cellspacing="15" cellpadding="0" border="0" class="login_tab">
+        <tr><td colspan="2" align="center"><h5 class="login_tit">用户登录</h5></td></tr>
+        <tr><td colspan="2" class="td_user"><input id="username" name="username" type="text" autofocus="autofocus" placeholder="请输入用户名"/><i class="user"></i></td></tr>
+        <tr><td colspan="2"><input id="password" name="password" type="password" placeholder="请输入密码"/><i class="lock"></i></td></tr>
+        <tr><td colspan="2" align="center"><input type="submit" class="input_btn input_sub" value="登&nbsp;&nbsp;&nbsp;录"/></td></tr>
+        <!--<tr><td align="center"><a id="submit" class="input_btn">登&nbsp;&nbsp;&nbsp;录</a></td></tr>-->
+    </table>
+</form>
+</body>
+</html>

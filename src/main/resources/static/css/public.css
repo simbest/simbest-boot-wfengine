@@ -1,0 +1,137 @@
+body {padding:45px 0 0; background: #fefefe; background-size: cover; color: #333; font-size: 13px; }
+a,a:link,a:visited{text-decoration:none;cursor:pointer;color:#333;}
+/*超级H5时的页面容器*/
+/*.pageview{height:100%;}*/
+.pageview { position: fixed; z-index: 20; width: 100%;padding-top:5px; top: 0px; bottom: 46px; overflow-y: scroll; overflow-x: hidden; -webkit-overflow-scrolling: touch;}
+/*字体颜色*/
+.col_r{color:#ff0000;}.col_l{color:#3a8ac9;}.col_h{color:#9a9a9a;}a.col_b,.col_b{color:#0000ff;}.col_ib{color:#10a6fd;}.col_io{color:#fbc400;}.col_ir{color:#f95b5a;}.col_ig{color:#47c118;}
+.col_w{color:#fff;}.col_g{color:#008040;}.col_hei{color:#000;}
+.no_bor{border:0 none;}
+.bor_lc{border-left:1px solid #ccc;}.bor_bc{border-bottom:1px solid #d0d0d0;}.bor_be{border-bottom:1px solid #e0e0e0;}.bor_l5b{border-left:5px solid #3a8ac9;}
+.bor_ae{border:1px solid #e0e0e0;}
+.line{clear:both;height:10px;background:#ebebeb;}.line6{clear:both;height:6px;background:#ebebeb;}
+.pos_rel{position:relative;}.dis_block{display:block;}
+.bgh{background:#fafafa;}
+.wb_ba{word-break:break-all;}
+.h_8{height:8px;}.h_5{height:5px;}
+.titPoint{position: absolute; background:red; color:#fff;border-radius:50%; height: 14px; width: 14px; font-size: 10px; line-height: 13px; right: 26%; top: 2px;}
+/**header**/
+header{width:100%;position:fixed;z-index:55;top:0px;background:#ededed;text-align:center;line-height:45px;font-size:15px;padding:0 6px;border-bottom:1px solid #d9d9d9;}
+.swiper-container{width:100%;} 
+.swiper-container img{display:block;width:100%;max-height:180px;}
+.peo_help,.peo_tel{position:absolute;bottom:18px;right:0px;width:50px;text-align:center;}
+.peo_tel{bottom:50px;}
+.popup_li a{display:block;text-align:center;padding:10px;}
+.companyPicker{position:absolute;width:100%;right:0;top:0px;bottom:5px;}
+.progress{position:relative;height:50px;padding-top:10px;}
+.progress_line{height:3px;background:#eee;}
+.progress_nr{position:absolute;top:2px;width:100%;}
+.progress_step{width:25%;float:left;text-align:center;line-height:18px;}
+.progress_step span{color:#e0e0e0;transform:rotate(45deg);font-size:30px;}
+.progress_step span.span_now{color:#ff0000;}
+.progress_step span.span_ago{color:#00ff00;}
+
+/*公共底部*/
+nav{width:100%;height:46px;position:fixed;z-index:100;bottom:0px;left:0px;border-top:solid 1px #ebebeb;background-color:#fff;}/*box-shadow:0 -1px 1px #e4e4e4;*/
+.btn{background-color:#3a8ac9;color:#fff;border:none;padding:8px 8px;}
+.btn-hui,.btn-hui:link,.btn-hui:visited{background-color:#e7e7e8;border-color:#e7e7e8;color:#999}
+
+.weui-search-bar{background:#f5f5f5;}
+.policyList{padding:0 10px 10px;}
+.plyLst{border:1px solid #eee;border-radius:5px;}
+.plyLst .plyTit{display:block;font-weight:bold;background:#f5f5f5;border-top-left-radius:5px;border-top-right-radius:5px;border-bottom:1px solid #eee;}
+.plyLst .plyTit i{line-height:15px;}
+.plyLst li{line-height:25px;word-wrap:break-word;}
+.search_bar{position:fixed;width:100%;top:45px;padding:5px;background:#eee;}
+.search_bar input{border:1px solid #e0e0e0;border-radius:10px;padding:0 28px 0 10px}
+.search_bar a{position:absolute;top:5px;right:12px;line-height:36px;padding:0 5px;}
+.search_bar a#searchclear{right:45px;}
+.search_bar i.isearch{position:absolute;top:5px;left:18px;line-height:36px;}
+.needUp input,.needUp textarea{font-family:inherit;font-size:inherit;line-height:inherit;outline:none;display:block;width:100%;height:32px;line-height:32px;padding:6px;font-size:14px;vertical-align:middle;background-image:none;border-radius:1px;border:0 none;border-bottom:solid 1px #e0e0e0;}
+.needUp textarea{border:1px solid #e7e7e8;line-height:22px;}
+
+/*ctable*/
+table.ctable{border-collapse:collapse;border-spacing:0; empty-cells:show;max-width:100%;}
+table.ctable thead tr{font-weight:bold;background:#fff4e2;}
+table.ctable td{padding:8px 5px;line-height:21px;border-width:1px 0px 0px;border-style:solid;border-color:#e6e6e6;white-space: nowrap;font-size:14px;}
+table.ctable thead tr td{border:0px none;}
+table.ctable tbody{border-width:0px 1px;border-style:solid;border-color:#e6e6e6;}
+table.ctable tbody tr:last-child td{border-width:1px 0px 1px;border-style:solid;border-color:#e6e6e6;}
+table.ctable tbody tr:hover{background:#fff4e2;}
+table.ctable tbody tr:nth-child(even){background:#fafafa;}
+table.ctable tfoot td{border:none;padding:5px 0;background:#f5f6fa;}
+
+table.ctable2 td,table.ctable2 th{font-size:12px;text-align:left;padding:8px 0;}
+table.ctable2 th{color:#fff;}
+table.ctable2 thead tr{border-radius:3px;background:#2a9af0;}
+/**opinion**/
+.opinionlist{padding:12px 15px 10px 24px;margin-top:15px;}
+.opinionlist li{padding:0 0 7px 18px;min-height:50px;border-left:1px solid #adadad;border-bottom:1px solid #e8e8e8;position:relative;}
+.opinionlist li p{padding:10px 0 15px;}
+.opinionlist li p img{height:50px;width:auto;margin-right:10px;}
+.opinionlist li.li_nobor{border-left:0 none;}
+.opinionlist li:last-child{border-bottom:0 none;}
+.opinionlist li i{width:18px;height:18px;position:absolute;left:-9px;top:-9px;border:1px solid #999;background:#adadad;border-radius:50%;}
+.opinionlist li i.bgr{background:#ca5f5f;}
+
+.service li a{padding:10px 16px 10px 10px;}
+.service li a i.fr{position:absolute;right:5px;}
+
+.editI{position:absolute;right:3px;}
+textarea::-webkit-input-placeholder { /* WebKit browsers */
+    color:#bbb;font-size:12px;
+}
+textarea:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color:#bbb;font-size:12px;
+}
+textarea::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color:#bbb;font-size:12px;
+}
+textarea:-ms-input-placeholder { /* Internet Explorer 10+ */
+    color:#bbb;font-size:12px;
+}
+.swiper-slide p{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.overpoint{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+.mapinfo{position:fixed;z-index:102;top:105%;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);overflow:hidden;}
+.mapnr{position:absolute;z-index:103;bottom:0;left:0;right:0;background:#fff;overflow:visible;}
+.mapnr .maptable{max-height:500px;overflow-x:hidden;overflow-y:scroll;min-height:300px;}
+.mapinfoClose{position:absolute;z-index:104;top:10px;right:10px;background:#000;border-radius:50%;color:#fff;padding:4px 5px;width:26px;height:26px;text-align:center;overflow:hidden;}
+.imgtobig{position:fixed;text-align:center;z-index:11000;width:90%;height:80%;padding:10px;left:5%;top:10%;overflow-x:hidden;overflow-y:auto;border:1px solid #666;background:#fff;}
+.imgtobig a{position:absolute;z-index:11001;right:8px;top:5px;color:#fff;cursor:pointer;width:25px;line-height:25px;background:#000;border-radius:50%;}
+.imgtobig a i{font-style:normal;}
+
+/**无数据提示**/
+.noinfo{width:100%;position:absolute;top:35%;text-align:center;display:none;}
+.noinfo img{width:60px;}
+.noinfo p{color:#999;padding:10px;}
+
+.list li{padding:10px;border-bottom:1px solid #e0e0e0;}
+.contactList li{border-bottom:8px solid #eee;}
+.contactList li:last-child{border-bottom:0 none;}
+
+.conLst .plyTit{background:#79cdfd;color:#fff;}
+
+.problemLi{padding-bottom:10px;}
+
+/**title**/
+.title {border-bottom:1px solid #e6e6e6;padding:8px 0;position:fixed;left:0;top:45px;right:0;background:#fff;z-index:100;}
+.title a{float:left;text-align:center;line-height:22px;border-right:1px solid #e6e6e6;}
+.title a:last-child { border-right:0 none;}
+.title span { position:absolute;left:0;bottom:-1px;height:2px;background:#48b4ff;}
+
+.headerSelector{position:fixed;top:5px;right:0;}
+.headerSelector a{font-size:13px;}
+.headerSelector a.cselectorInput{background-color:transparent;background-size:14px;padding-right:16px;color:#3a8ac9;}
+
+/**百度地图**/
+.BMap_cpyCtrl,.anchorBL a{display:none;}
+.BMapLabel{border-radius:5px;}
+#allmap div{overflow:visible;}
+
+#noticelist li{border-top:6px solid #eee;position:relative;overflow:hidden;}
+#noticelist li:first-child{border-top:0px none;padding-top:15px;}
+#noticelist li .isNew{position:absolute;background:#f00;color:#fff;transform:rotate(45deg);width:65px;right:-19px;top:4px;text-align:center;font-size:8px;}
+
+#pagequestions .cselectorRadioList .cselectorRadioUL a,#pagequestions .cselectorCheckBoxList .cselectorCheckBoxUL a{border:0 none;}
+#pagequestions .cfocus .page{top:28px;bottom:auto;}

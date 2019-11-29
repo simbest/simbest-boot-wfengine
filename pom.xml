@@ -1,0 +1,282 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.simbest.boot</groupId>
+        <artifactId>simbest-boot-parent</artifactId>
+        <version>0.1</version>
+        <relativePath>../simbest-boot-parent</relativePath>
+    </parent>
+
+    <groupId>com.simbest.boot</groupId>
+    <artifactId>wfengine</artifactId>
+    <version>0.1</version>
+    <packaging>jar</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>基于Flowalbe实现的流程引擎</description>
+
+    <properties>
+        <simbest.version>0.1</simbest.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <profileActive>dev</profileActive>
+
+        <server.servlet.context-path>/${project.artifactId}</server.servlet.context-path>
+        <server.servlet.session.timeout>3600</server.servlet.session.timeout>
+        <server.servlet.session.cookie.max-age>${server.servlet.session.timeout}</server.servlet.session.cookie.max-age>
+        <spring.servlet.multipart.max-file-size>10MB</spring.servlet.multipart.max-file-size>
+        <spring.servlet.multipart.max-request-size>10MB</spring.servlet.multipart.max-request-size>
+		<spring.datasource.type>com.alibaba.druid.pool.DruidDataSource</spring.datasource.type>
+        <spring.datasource.database.type>h2</spring.datasource.database.type>
+        <spring.datasource.driver-class-name>org.h2.Driver</spring.datasource.driver-class-name>
+        <spring.datasource.url>jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=Oracle;AUTO_RECONNECT=TRUE;DB_CLOSE_ON_EXIT=FALSE</spring.datasource.url>
+        <spring.datasource.username>sa</spring.datasource.username>
+        <spring.datasource.password></spring.datasource.password>
+        <spring.jpa.database-platform>org.hibernate.dialect.H2Dialect</spring.jpa.database-platform>
+        <spring.datasource.sql-script-encoding>${project.build.sourceEncoding}</spring.datasource.sql-script-encoding>
+        <spring.datasource.druid.initial-size>5</spring.datasource.druid.initial-size>
+        <spring.datasource.druid.min-idle>10</spring.datasource.druid.min-idle>
+        <spring.datasource.druid.max-active>20</spring.datasource.druid.max-active>
+        <spring.datasource.druid.max-wait>60000</spring.datasource.druid.max-wait>
+        <spring.datasource.druid.time-between-eviction-runs-millis>60000</spring.datasource.druid.time-between-eviction-runs-millis>
+        <spring.datasource.druid.min-evictable-idle-time-millis>300000</spring.datasource.druid.min-evictable-idle-time-millis>
+        <spring.datasource.druid.validation-query>SELECT 1 FROM DUAL</spring.datasource.druid.validation-query>
+        <spring.datasource.druid.filter.stat.slow-sql-millis>5000</spring.datasource.druid.filter.stat.slow-sql-millis>
+        <spring.datasource.druid.filter.wall.enabled>false</spring.datasource.druid.filter.wall.enabled>
+        <spring.datasource.druid.stat-view-servlet.login-username>hadmin</spring.datasource.druid.stat-view-servlet.login-username>
+        <spring.datasource.druid.stat-view-servlet.login-password>pass180418</spring.datasource.druid.stat-view-servlet.login-password>
+        <spring.redis.cluster.nodes>localhost:6379</spring.redis.cluster.nodes>
+        <spring.redis.cluster.password>123456</spring.redis.cluster.password>
+        <spring.redis.cluster.max-redirects>3</spring.redis.cluster.max-redirects>
+        <spring.cache.redis.key-prefix>cache:key:${project.artifactId}:</spring.cache.redis.key-prefix>
+        <spring.console.enabled>true</spring.console.enabled>
+        <spring.console.path>/h2-console</spring.console.path>
+        <spring.jpa.show-sql>true</spring.jpa.show-sql>
+        <spring.jpa.generate-ddl>true</spring.jpa.generate-ddl>
+        <spring.jpa.hibernate.ddl-auto>update</spring.jpa.hibernate.ddl-auto>
+        <spring.jpa.database>${spring.datasource.database.type}</spring.jpa.database>
+        <spring.jpa.properties.hibernate.dialect>org.hibernate.dialect.Oracle9iDialect</spring.jpa.properties.hibernate.dialect>
+        <!--<spring.jpa.hibernate.id.new_generator_mappings>true</spring.jpa.hibernate.id.new_generator_mappings>-->
+        <spring.messages.encoding>${project.build.sourceEncoding}</spring.messages.encoding>
+        <spring.http.encoding.charset>${project.build.sourceEncoding}</spring.http.encoding.charset>
+        <spring.thymeleaf.cache>false</spring.thymeleaf.cache>
+        <spring.thymeleaf.enable-spring-el-compiler>true</spring.thymeleaf.enable-spring-el-compiler>
+        <spring.session.store-type>redis</spring.session.store-type>
+        <spring.session.redis.cleanup-cron>0 * * * * *</spring.session.redis.cleanup-cron>
+        <spring.session.redis.namespace>spring:session:${project.artifactId}</spring.session.redis.namespace>
+        <management.endpoints.web.exposure.include>*</management.endpoints.web.exposure.include>
+
+        <logback.groupId>${project.groupId}</logback.groupId>
+        <logback.artifactId>${project.artifactId}</logback.artifactId>
+        <app.file.upload.path>D:/file</app.file.upload.path>
+        <app.file.upload.location>disk</app.file.upload.location>
+        <app.oa.portal.token>SIMBEST_SSO</app.oa.portal.token>
+        <app.uums.address>http://10.92.82.44:8001/uums</app.uums.address>
+        <app.swagger.address>http://localhost:8080${server.servlet.context-path}/swagger-ui.html</app.swagger.address>
+        <app.druid.monitor.address>http://localhost:8080${server.servlet.context-path}/druid</app.druid.monitor.address>
+        <app.actuator.monitor.address>http://localhost:8080${server.servlet.context-path}/actuator</app.actuator.monitor.address>
+        <app.task.heart.test.job>0 0/5 * * * ?</app.task.heart.test.job>
+        <app.captcha.enable>false</app.captcha.enable>
+        <app.host.port>http://localhost:8080</app.host.port>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.simbest.boot</groupId>
+            <artifactId>simbest-boot-cores</artifactId>
+            <version>${simbest.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.bull.javamelody</groupId>
+            <artifactId>javamelody-spring-boot-starter</artifactId>
+            <version>1.76.0</version>
+        </dependency>
+		
+        <!-- 热部署模块 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <optional>true</optional> <!-- 这个需要为 true 热部署才有效 -->
+        </dependency>
+
+
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-cas</artifactId>
+                <version>5.0.5.RELEASE</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.jasig.cas.client</groupId>
+                        <artifactId>cas-client-core</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <finalName>${project.artifactId}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <fork>true</fork>
+                    <addResources>false</addResources>
+                    <profiles>
+                        <profile>dev</profile>
+                        <profile>uat</profile>
+                        <profile>test</profile>
+                        <profile>prd</profile>
+                    </profiles>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+        <pluginManagement>
+
+        </pluginManagement>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <profileActive>dev</profileActive>
+                <app.uums.address>http://localhost:8001/uums</app.uums.address>
+                <app.file.upload.path>/data/static</app.file.upload.path>
+                <app.file.upload.location>disk</app.file.upload.location>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>uat</id>
+            <properties>
+                <profileActive>uat</profileActive>
+                <spring.datasource.database.type>mysql</spring.datasource.database.type>
+                <spring.datasource.driver-class-name>com.mysql.jdbc.Driver</spring.datasource.driver-class-name>
+                <spring.datasource.url>jdbc:mysql://localhost:3306/wfengine?serverTimezone=Asia/Shanghai</spring.datasource.url>
+                <spring.datasource.username>root</spring.datasource.username>
+                <spring.datasource.password>123456</spring.datasource.password>
+                <spring.redis.cluster.nodes>localhost:6379</spring.redis.cluster.nodes>
+                <spring.redis.cluster.password>123456</spring.redis.cluster.password>
+                <spring.jpa.database-platform>org.hibernate.dialect.MySQL57Dialect</spring.jpa.database-platform>
+                <spring.datasource.druid.filter.wall.enabled>true</spring.datasource.druid.filter.wall.enabled>
+            </properties>
+        </profile>
+        <profile>
+            <id>prd</id>
+            <properties>
+                <profileActive>prd</profileActive>
+                <spring.datasource.database.type>mysql</spring.datasource.database.type>
+                <spring.datasource.driver-class-name>com.mysql.jdbc.Driver</spring.datasource.driver-class-name>
+                <spring.datasource.url>jdbc:mysql://localhost:3306/wfengine?serverTimezone=Asia/Shanghai</spring.datasource.url>
+                <spring.datasource.username>root</spring.datasource.username>
+                <spring.datasource.password>123456</spring.datasource.password>
+                <spring.redis.cluster.nodes>localhost:6379</spring.redis.cluster.nodes>
+                <spring.redis.cluster.password>foobared</spring.redis.cluster.password>
+                <spring.jpa.database-platform>org.hibernate.dialect.MySQL57Dialect</spring.jpa.database-platform>
+                <spring.datasource.druid.filter.wall.enabled>true</spring.datasource.druid.filter.wall.enabled>
+			</properties>
+		</profile>
+    </profiles>
+
+    <!--GITHUB 公网-->
+    <!--
+    <repositories>
+        <repository>
+            <id>aliyun-repo</id>
+            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>simbest-boot-parent-mvn-repo</id>
+            <url>https://raw.github.com/simbest/simbest-boot-parent/mvn-repo/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>simbest-boot-orguser-mvn-repo</id>
+            <url>https://raw.github.com/simbest/simbest-boot-orguser/mvn-repo/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>simbest-boot-cores-mvn-repo</id>
+            <url>https://raw.github.com/simbest/simbest-boot-cores/mvn-repo/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>simbest-boot-wxmp-mvn-repo</id>
+            <url>https://raw.github.com/simbest/simbest-boot-wxmp/mvn-repo/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>simbest-boot-wf-mvn-repo</id>
+            <url>https://raw.github.com/simbest/simbest-boot-wf/mvn-repo/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>simbest-maven-repo1</id>
+            <url>https://raw.github.com/simbest/simbest-maven-repo/master/repository/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>simbest-maven-repo2</id>
+            <url>https://github.com/simbest/simbest-maven-repo/tree/master/repository/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+    -->
+
+    <!--Nexus 私服-->
+    <repositories>
+        <repository>
+            <id>thirdparty</id>
+            <url>http://10.87.41.250:8081/nexus/content/repositories/thirdparty</url>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <url>http://10.87.41.250:8081/nexus/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <url>http://10.87.41.250:8081/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+</project>
