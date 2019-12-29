@@ -51,10 +51,9 @@ public class MyAuthService implements IAuthService {
      * @return
      */
     @Override
-    public IUser findByKey(String username, KeyType keyType) {
-        return getSimpleUser(username);
+    public IUser findByKey(String keyword, KeyType keyType, String appcode) {
+        return getSimpleUser(keyword);
     }
-
 
     /**
      * 微信用户权限
@@ -81,8 +80,8 @@ public class MyAuthService implements IAuthService {
     }
 
     @Override
-    public IUser customUserForApp(IUser iUser, String s) {
-        return null;
+    public IUser customUserForApp(IUser iUser, String appcode) {
+        return iUser;
     }
 
     @Override
@@ -126,10 +125,11 @@ public class MyAuthService implements IAuthService {
         //权限
         Set<SimplePermission> permissions = new HashSet<>();
         SimplePermission sp = new SimplePermission();
+        sp.setId("P1");
         sp.setDescription("应用管理");
         sp.setDisplayOrder(2);
         sp.setIcon("app");
-        sp.setMenuLevel(2);
+        sp.setMenuLevel(1);
         sp.setPermissionCode("app:module");
         sp.setUrl("/app");
         permissions.add(sp);
