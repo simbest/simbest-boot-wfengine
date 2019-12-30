@@ -19,6 +19,7 @@
     <properties>
         <simbest.version>0.1</simbest.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <flowable.version>6.4.2</flowable.version>
         <profileActive>dev</profileActive>
 
         <server.servlet.context-path>/${project.artifactId}</server.servlet.context-path>
@@ -81,9 +82,28 @@
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.46</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable-spring-boot-starter</artifactId>
+            <version>${flowable.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.simbest.boot</groupId>
             <artifactId>simbest-boot-cores</artifactId>
+            <version>${simbest.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.simbest.boot</groupId>
+            <artifactId>simbest-boot-wflib</artifactId>
             <version>${simbest.version}</version>
         </dependency>
         <dependency>
