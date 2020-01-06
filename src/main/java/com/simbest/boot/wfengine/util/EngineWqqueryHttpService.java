@@ -15,8 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class WqqueryHttpService {
-    private static final Logger log = LoggerFactory.getLogger(WqqueryHttpService.class);
+public class EngineWqqueryHttpService {
+    private static final Logger log = LoggerFactory.getLogger(EngineWqqueryHttpService.class);
 
     /**
      * 三个常量建议直接配置
