@@ -3,13 +3,7 @@
  */
 package com.simbest.boot.uums;
 
-import com.simbest.boot.security.IAuthService;
-import com.simbest.boot.security.IPermission;
-import com.simbest.boot.security.IUser;
-import com.simbest.boot.security.MySimpleGrantedAuthority;
-import com.simbest.boot.security.SimplePermission;
-import com.simbest.boot.security.SimpleRole;
-import com.simbest.boot.security.SimpleUser;
+import com.simbest.boot.security.*;
 import com.simbest.boot.uums.api.user.UumsSysUserinfoApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +13,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -30,7 +23,7 @@ import java.util.Set;
  * 时间: 2018/6/11  10:20
  */
 @Slf4j
-@Service
+//@Service
 public class MyAuthService implements IAuthService {
 
     @Value("${logback.artifactId}")
@@ -41,17 +34,12 @@ public class MyAuthService implements IAuthService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-       return getSimpleUser(username);
+        return getSimpleUser(username);
     }
 
-    /**
-     * 微信验证用户
-     *
-     * @param username 即openid
-     * @return
-     */
+
     @Override
-    public IUser findByKey(String keyword, KeyType keyType) {
+    public IUser findByKey(String keyword, KeyType keyType, String appcode) {
         return getSimpleUser(keyword);
     }
 
@@ -80,8 +68,8 @@ public class MyAuthService implements IAuthService {
     }
 
     @Override
-    public IUser customUserForApp(IUser iUser, String appcode) {
-        return iUser;
+    public IUser customUserForApp(IUser iUser, String s) {
+        return null;
     }
 
     @Override
@@ -123,18 +111,6 @@ public class MyAuthService implements IAuthService {
         roles.add(role1);
         ((SimpleUser) user).setAuthRoles(roles);
         //权限
-        Set<SimplePermission> permissions = new HashSet<>();
-        SimplePermission sp = new SimplePermission();
-        sp.setId("P1");
-        sp.setDescription("应用管理");
-        sp.setDisplayOrder(2);
-        sp.setIcon("app");
-        sp.setMenuLevel(1);
-        sp.setPermissionCode("app:module");
-        sp.setUrl("/app");
-        permissions.add(sp);
-        ((SimpleUser) user).setAuthPermissions(permissions);
-
         Set<MySimpleGrantedAuthority> authoritys = new HashSet<>();
         MySimpleGrantedAuthority a2 = new MySimpleGrantedAuthority("ROLE_USER");
         authoritys.add(a2);
