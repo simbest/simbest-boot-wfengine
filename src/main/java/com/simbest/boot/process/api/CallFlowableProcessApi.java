@@ -3,7 +3,7 @@ package com.simbest.boot.process.api;
 import com.simbest.boot.appManage.model.SysAppConfig;
 import com.simbest.boot.appManage.service.ISysAppConfigService;
 import com.simbest.boot.wfengine.util.ConstansURL;
-import com.simbest.boot.wfengine.util.WqqueryHttpService;
+import com.simbest.boot.wfengine.util.EngineWqqueryHttpService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,7 @@ import java.util.Map;
 @Component
 public class CallFlowableProcessApi {
     @Autowired
-    private WqqueryHttpService wqqueryHttpService;
+    private EngineWqqueryHttpService engineWqqueryHttpService;
     @Autowired
     private ISysAppConfigService sysAppConfigServiceImpl;
 
@@ -35,7 +35,7 @@ public class CallFlowableProcessApi {
     public Map<String,Object> task_created(String tenantId,Map<String,Object> variables){
         String appUrl = getUrlByTenantId(tenantId);
         Map<String,Object> data =null;
-        Map<String,Object> map = wqqueryHttpService.callInterfaceJsonObject(appUrl,ConstansURL.TASK_CREATED,variables);
+        Map<String,Object> map = engineWqqueryHttpService.callInterfaceJsonObject(appUrl,ConstansURL.TASK_CREATED,variables);
         if(map!=null){
             data = (Map<String, Object>) map.get("data");
         }
@@ -51,7 +51,7 @@ public class CallFlowableProcessApi {
     public Map<String,Object> task_completed(String tenantId,Map<String,Object> variables){
         String appUrl = getUrlByTenantId(tenantId);
         Map<String,Object> data =null;
-        Map<String,Object> map = wqqueryHttpService.callInterfaceJsonObject(appUrl,ConstansURL.TASK_COMPLETED,variables);
+        Map<String,Object> map = engineWqqueryHttpService.callInterfaceJsonObject(appUrl,ConstansURL.TASK_COMPLETED,variables);
         if(map!=null){
             data = (Map<String, Object>) map.get("data");
         }
@@ -67,7 +67,7 @@ public class CallFlowableProcessApi {
     public Map<String,Object> process_instance_created(String tenantId,Map<String,Object> variables){
         String appUrl = getUrlByTenantId(tenantId);
         Map<String,Object> data =null;
-        Map<String,Object> map = wqqueryHttpService.callInterfaceJsonObject(appUrl,ConstansURL.PROCESS_INSTANCE_CREATED,variables);
+        Map<String,Object> map = engineWqqueryHttpService.callInterfaceJsonObject(appUrl,ConstansURL.PROCESS_INSTANCE_CREATED,variables);
         if(map!=null){
             data = (Map<String, Object>) map.get("data");
         }
@@ -82,7 +82,7 @@ public class CallFlowableProcessApi {
     public Map<String,Object> process_instance_ended(String tenantId,Map<String,Object> variables){
         String appUrl = getUrlByTenantId(tenantId);
         Map<String,Object> data =null;
-        Map<String,Object> map = wqqueryHttpService.callInterfaceJsonObject(appUrl,ConstansURL.PROCESS_INSTANCE_ENDED,variables);
+        Map<String,Object> map = engineWqqueryHttpService.callInterfaceJsonObject(appUrl,ConstansURL.PROCESS_INSTANCE_ENDED,variables);
         if(map!=null){
             data = (Map<String, Object>) map.get("data");
         }
