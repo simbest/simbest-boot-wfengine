@@ -7,9 +7,11 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * <strong>Title</strong> : SimbestApplication.java<br>
@@ -23,8 +25,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  */
 @Slf4j
 @SpringBootApplication
+@ServletComponentScan
 @EnableJpaRepositories(repositoryFactoryBeanClass = CustomJpaRepositoryFactoryBean.class)
 @EntityScan(basePackageClasses = { SimbestApplication.class, Jsr310JpaConverters.class })
+@EnableAsync
 public class SimbestApplication implements CommandLineRunner {
 
     @Autowired
@@ -50,14 +54,5 @@ public class SimbestApplication implements CommandLineRunner {
             log.warn("Spring Boot load profile is: {}", profile);
             log.warn("Aplication started successfully, lets go and have fun......");
         }
-//        String[] beans = appContext.getBeanDefinitionNames();
-//        Arrays.sort(beans);
-//        for (String bean : beans) {
-//            log.warn("Load bean {} successfully......",  bean);
-//        }
-//        log.warn("Total load {} beans", appContext.getBeanDefinitionCount());
     }
-
-
-
 }
