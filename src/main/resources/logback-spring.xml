@@ -200,11 +200,12 @@
     <logger name="java.sql.ResultSet" level="INFO" />
 
     <logger name="org.springframework" level="WARN" />
-    <logger name="org.springframework.security.web" level="DEBUG" />
+    <logger name="org.springframework.security.web" level="WARN" />
+    <logger name="org.flowable" level="WARN" />
 
 
     <!-- 生产环境下，将此级别配置为适合的级别，以免日志文件太多或影响程序性能 -->
-    <springProfile name="dev,uat,test,gm">
+    <springProfile name="dev,uat,test">
         <root level="DEBUG">
             <appender-ref ref="FILEERROR" /> <!--只记录ERRRO级别以上日志-->
             <appender-ref ref="FILEWARN" />  <!--只记录WARN级别以上日志-->

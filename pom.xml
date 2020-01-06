@@ -72,7 +72,7 @@
         <app.file.upload.path>D:/file</app.file.upload.path>
         <app.file.upload.location>disk</app.file.upload.location>
         <app.oa.portal.token>SIMBEST_SSO</app.oa.portal.token>
-        <app.uums.address>http://10.92.82.44:8001/uums</app.uums.address>
+        <app.uums.address>http://10.92.82.161:8088/uums</app.uums.address>
         <app.swagger.address>http://localhost:8080${server.servlet.context-path}/swagger-ui.html</app.swagger.address>
         <app.druid.monitor.address>http://localhost:8080${server.servlet.context-path}/druid</app.druid.monitor.address>
         <app.actuator.monitor.address>http://localhost:8080${server.servlet.context-path}/actuator</app.actuator.monitor.address>
