@@ -179,6 +179,7 @@
     <logger name="io.lettuce" level="WARN" />
     <logger name="org.redisson" level="WARN" />
     <logger name="reactor." level="WARN" />
+    <logger name="net.bull.javamelody" level="WARN" />
 
     <!-- show parameters for hibernate sql 专为 Hibernate 定制 -->
     <logger name="org.hibernate" level="WARN" />
@@ -201,7 +202,9 @@
 
     <logger name="org.springframework" level="WARN" />
     <logger name="org.springframework.security.web" level="WARN" />
-    <logger name="org.flowable" level="WARN" />
+
+    <logger name="liquibase" level="WARN" />
+    <logger name="org.flowable" level="INFO" />
 
 
     <!-- 生产环境下，将此级别配置为适合的级别，以免日志文件太多或影响程序性能 -->

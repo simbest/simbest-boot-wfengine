@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>SimpleFlow登录</title>
+    <title>登录晟壁云流程引擎</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
@@ -27,6 +27,7 @@
 <body>
 <!--login-->
 <form id="login" method="POST" th:action="@{/login}" onsubmit="return check()">
+    <input id="appcode" name="appcode" type="hidden" value="wfengine"/>
     <table cellspacing="15" cellpadding="0" border="0" class="login_tab">
         <tr><td colspan="2" align="center"><h5 class="login_tit">用户登录</h5></td></tr>
         <tr><td colspan="2" class="td_user"><input id="username" name="username" type="text" autofocus="autofocus" placeholder="请输入用户名"/><i class="user"></i></td></tr>
