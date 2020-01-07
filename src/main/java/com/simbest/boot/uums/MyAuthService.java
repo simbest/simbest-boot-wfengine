@@ -51,8 +51,8 @@ public class MyAuthService implements IAuthService {
      * @return
      */
     @Override
-    public IUser findByKey(String keyword, KeyType keyType) {
-        return getSimpleUser(keyword);
+    public IUser findByKey ( String s, KeyType keyType, String s1 ) {
+        return null;
     }
 
     /**
