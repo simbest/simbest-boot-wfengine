@@ -27,7 +27,7 @@
         <server.servlet.session.cookie.max-age>${server.servlet.session.timeout}</server.servlet.session.cookie.max-age>
         <spring.servlet.multipart.max-file-size>10MB</spring.servlet.multipart.max-file-size>
         <spring.servlet.multipart.max-request-size>10MB</spring.servlet.multipart.max-request-size>
-		<spring.datasource.type>com.alibaba.druid.pool.DruidDataSource</spring.datasource.type>
+        <spring.datasource.type>com.alibaba.druid.pool.DruidDataSource</spring.datasource.type>
         <spring.datasource.database.type>h2</spring.datasource.database.type>
         <spring.datasource.driver-class-name>org.h2.Driver</spring.datasource.driver-class-name>
         <spring.datasource.url>jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=Oracle;AUTO_RECONNECT=TRUE;DB_CLOSE_ON_EXIT=FALSE</spring.datasource.url>
@@ -78,7 +78,7 @@
         <app.actuator.monitor.address>http://localhost:8080${server.servlet.context-path}/actuator</app.actuator.monitor.address>
         <app.task.heart.test.job>0 0/5 * * * ?</app.task.heart.test.job>
         <app.captcha.enable>false</app.captcha.enable>
-        <app.host.port>http://localhost:8080</app.host.port>
+        <app.host.port>http://10.92.82.44:8088</app.host.port>
     </properties>
 
     <dependencies>
@@ -111,7 +111,7 @@
             <artifactId>javamelody-spring-boot-starter</artifactId>
             <version>1.76.0</version>
         </dependency>
-		
+
         <!-- 热部署模块 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -184,22 +184,34 @@
         </profile>
         <profile>
             <id>uat</id>
+            <!-- <properties>
+                 <profileActive>uat</profileActive>
+                 <spring.datasource.database.type>mysql</spring.datasource.database.type>
+                 <spring.datasource.driver-class-name>com.mysql.jdbc.Driver</spring.datasource.driver-class-name>
+                 <spring.datasource.url>jdbc:mysql://localhost:3306/wfengine?serverTimezone=Asia/Shanghai</spring.datasource.url>
+                 <spring.datasource.username>root</spring.datasource.username>
+                 <spring.datasource.password>123456</spring.datasource.password>
+                 <spring.redis.cluster.nodes>localhost:6379</spring.redis.cluster.nodes>
+                 <spring.redis.cluster.password>123456</spring.redis.cluster.password>
+                 <spring.jpa.database-platform>org.hibernate.dialect.MySQL57Dialect</spring.jpa.database-platform>
+                 <spring.datasource.druid.filter.wall.enabled>true</spring.datasource.druid.filter.wall.enabled>
+             </properties>-->
             <properties>
                 <profileActive>uat</profileActive>
-                <spring.datasource.database.type>mysql</spring.datasource.database.type>
-                <spring.datasource.driver-class-name>com.mysql.jdbc.Driver</spring.datasource.driver-class-name>
-                <spring.datasource.url>jdbc:mysql://localhost:3306/wfengine?serverTimezone=Asia/Shanghai</spring.datasource.url>
-                <spring.datasource.username>root</spring.datasource.username>
-                <spring.datasource.password>123456</spring.datasource.password>
-                <spring.redis.cluster.nodes>localhost:6379</spring.redis.cluster.nodes>
-                <spring.redis.cluster.password>123456</spring.redis.cluster.password>
-                <spring.jpa.database-platform>org.hibernate.dialect.MySQL57Dialect</spring.jpa.database-platform>
+                <spring.datasource.database.type>oracle</spring.datasource.database.type>
+                <spring.datasource.driver-class-name>oracle.jdbc.OracleDriver</spring.datasource.driver-class-name>
+                <spring.datasource.url>jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS= (PROTOCOL=TCP)(HOST=10.92.82.44)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME = bpsdb)))</spring.datasource.url>
+                <spring.datasource.username>${project.artifactId}</spring.datasource.username>
+                <spring.datasource.password>Test44We</spring.datasource.password>
+                <spring.redis.cluster.nodes>10.92.82.44:6379</spring.redis.cluster.nodes>
+                <spring.redis.cluster.password>Xianzai@2605</spring.redis.cluster.password>
+                <spring.jpa.database-platform>org.hibernate.dialect.Oracle10gDialect</spring.jpa.database-platform>
                 <spring.datasource.druid.filter.wall.enabled>true</spring.datasource.druid.filter.wall.enabled>
             </properties>
         </profile>
         <profile>
             <id>prd</id>
-            <properties>
+            <!--<properties>
                 <profileActive>prd</profileActive>
                 <spring.datasource.database.type>mysql</spring.datasource.database.type>
                 <spring.datasource.driver-class-name>com.mysql.jdbc.Driver</spring.datasource.driver-class-name>
@@ -210,8 +222,23 @@
                 <spring.redis.cluster.password>foobared</spring.redis.cluster.password>
                 <spring.jpa.database-platform>org.hibernate.dialect.MySQL57Dialect</spring.jpa.database-platform>
                 <spring.datasource.druid.filter.wall.enabled>true</spring.datasource.druid.filter.wall.enabled>
-			</properties>
-		</profile>
+			</properties>-->
+            <properties>
+                <profileActive>prd</profileActive>
+                <app.uums.address>http://10.92.81.163:8088/uums</app.uums.address>
+                <spring.jpa.generate-ddl>false</spring.jpa.generate-ddl>
+                <spring.datasource.database.type>oracle</spring.datasource.database.type>
+                <spring.datasource.driver-class-name>oracle.jdbc.OracleDriver</spring.datasource.driver-class-name>
+                <spring.datasource.url>jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=10.92.80.73)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.92.80.74)(PORT=1521))(FAILOVER=on)(LOAD_BALANCE=off))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=oradb)(failover_mode=(type=select)(method=basic))))</spring.datasource.url>
+                <spring.datasource.username>${project.artifactId}</spring.datasource.username>
+                <spring.datasource.password>Prd7374We</spring.datasource.password>
+                <spring.redis.cluster.nodes>10.92.82.140:26379,10.92.82.140:26389,10.92.82.140:26399,10.92.82.141:26379,10.92.82.141:26389,10.92.82.141:26399</spring.redis.cluster.nodes>
+                <spring.redis.cluster.password>Xianzai@0528</spring.redis.cluster.password>
+                <spring.jpa.database-platform>org.hibernate.dialect.Oracle10gDialect</spring.jpa.database-platform>
+                <spring.datasource.druid.filter.wall.enabled>true</spring.datasource.druid.filter.wall.enabled>
+                <app.captcha.enable>true</app.captcha.enable>
+            </properties>
+        </profile>
     </profiles>
 
     <!--GITHUB 公网-->

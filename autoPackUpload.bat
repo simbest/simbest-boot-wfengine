@@ -1,23 +1,23 @@
 @echo off
 
 
-::Ê¹ÓÃËµÃ÷
-::1¡¢±¾ÎÄ¼þ·ÅÔÚÏîÄ¿ÀïÓëpom.xml¡¢readme.txt·ÅÒ»Æð
-::2¡¢Èç¹ûÓ¦ÓÃ¸Ä±äµÄ»°Ö»ÐèÒªÐÞ¸Ä±äÁ¿jarFile¼´¿É
-::Ó¦ÓÃÃû³Æ£¬»»Ó¦ÓÃºóÖ»ÐèÒªÐÞ¸ÄÕâÀï¼´¿É
+::ä½¿ç”¨è¯´æ˜Ž
+::1ã€æœ¬æ–‡ä»¶æ”¾åœ¨é¡¹ç›®é‡Œä¸Žpom.xmlã€readme.txtæ”¾ä¸€èµ·
+::2ã€å¦‚æžœåº”ç”¨æ”¹å˜çš„è¯åªéœ€è¦ä¿®æ”¹å˜é‡jarFileå³å¯
+::åº”ç”¨åç§°ï¼Œæ¢åº”ç”¨åŽåªéœ€è¦ä¿®æ”¹è¿™é‡Œå³å¯
 set jarFile=wfengine.jar
 
-::²Ëµ¥ÌáÊ¾ÐÅÏ¢
+::èœå•æç¤ºä¿¡æ¯
 :menu
 echo   ==================================
-echo   = 1::uat´ò°ü²¢ÉÏ´«²âÊÔ·þÎñÆ÷     =
-echo   = 2::prd´ò°ü²¢ÉÏ´«ÕýÊ½·þÎñÆ÷     =
-echo   = 3::ÍË³ö±¾´°¿Ú                  =
-echo   = q::ÍË³ö±¾´°¿Ú                  =
+echo   = 1::uatæ‰“åŒ…å¹¶ä¸Šä¼ æµ‹è¯•æœåŠ¡å™¨     =
+echo   = 2::prdæ‰“åŒ…å¹¶ä¸Šä¼ æ­£å¼æœåŠ¡å™¨     =
+echo   = 3::é€€å‡ºæœ¬çª—å£                  =
+echo   = q::é€€å‡ºæœ¬çª—å£                  =
 echo   ==================================
 echo.
-::ÅÐ¶ÏÄ£¿é
-set /p input=-^> ÇëÊäÈëÑ¡Ôñ: 
+::åˆ¤æ–­æ¨¡å—
+set /p input=-^> è¯·è¾“å…¥é€‰æ‹©: 
 cls
 if "%input%"=="1" goto uat
 if "%input%"=="2" goto prd
@@ -25,45 +25,45 @@ if "%input%"=="3" goto exit
 if "%input%"=="q" goto exit
 
 :uat
-::²âÊÔ»·¾³ÅäÖÃÐÅÏ¢¼°´ò°ü
+::æµ‹è¯•çŽ¯å¢ƒé…ç½®ä¿¡æ¯åŠæ‰“åŒ…
 set Ip=10.92.82.44
 set user=oaftp
 set password=h9x0dxl6
 set uploadPath=/home/hrpamgt/simbestboot
 call mvn clean package -Dmaven.test.skip=true -Puat
 
-::Ìø×ªÉÏ´«jar°üÄ£¿é
+::è·³è½¬ä¸Šä¼ jaråŒ…æ¨¡å—
 call :upload
 goto menu
 
 
 :prd
-::Éú²ú»·¾³ÅäÖÃÐÅÏ¢¼°´ò°ü
+::ç”Ÿäº§çŽ¯å¢ƒé…ç½®ä¿¡æ¯åŠæ‰“åŒ…
 set uploadPath=/cmcc/apps
 call mvn clean package -Dmaven.test.skip=true -Pprd
-::ÕýÊ½»·¾³10.92.82.140ÓÃ»§Ãû¼°ÃÜÂë
-::²âÊÔ»·¾³ÅäÖÃÐÅÏ¢¼°´ò°ü
+::æ­£å¼çŽ¯å¢ƒ10.92.82.140ç”¨æˆ·ååŠå¯†ç 
+::æµ‹è¯•çŽ¯å¢ƒé…ç½®ä¿¡æ¯åŠæ‰“åŒ…
 set Ip=10.92.82.140
 set user=oaapp
 set password=9NPp#%%p$
-::Ìø×ªÉÏ´«jar°üÄ£¿é
+::è·³è½¬ä¸Šä¼ jaråŒ…æ¨¡å—
 call :upload
 
 
-::ÕýÊ½»·¾³10.92.82.141ÓÃ»§Ãû¼°ÃÜÂë
-::²âÊÔ»·¾³ÅäÖÃÐÅÏ¢¼°´ò°ü
+::æ­£å¼çŽ¯å¢ƒ10.92.82.141ç”¨æˆ·ååŠå¯†ç 
+::æµ‹è¯•çŽ¯å¢ƒé…ç½®ä¿¡æ¯åŠæ‰“åŒ…
 set Ip=10.92.82.141
 set user=oaapp
 set password=3%%!9Mdj9
-::Ìø×ªÉÏ´«jar°üÄ£¿é
+::è·³è½¬ä¸Šä¼ jaråŒ…æ¨¡å—
 call :upload
 goto menu
 
-::½áÊø±êÇ©(×îºÃ·Åµ½upload±êÇ©ÉÏÃæ)
+::ç»“æŸæ ‡ç­¾(æœ€å¥½æ”¾åˆ°uploadæ ‡ç­¾ä¸Šé¢)
 :exit
 exit
 
-::ÉÏ´«jÎÄ¼þµ½ÏàÓ¦·þÎñÆ÷
+::ä¸Šä¼ jæ–‡ä»¶åˆ°ç›¸åº”æœåŠ¡å™¨
 :upload
 set d="%cd%"
 set ftpConf=ftp.conf
@@ -78,13 +78,13 @@ echo rename %jarFile% %jarFile%.%date:~0,4%%date:~5,2%%date:~8,2%-%time:~0,5%.ba
 echo put %jarFile%>>%ftpConf%
 echo close>>%ftpConf%
 echo bye>>%ftpConf%
-::Ó¦ÓÃftp½øÐÐÏàÓ¦ÉÏ´«²Ù×÷
+::åº”ç”¨ftpè¿›è¡Œç›¸åº”ä¸Šä¼ æ“ä½œ
 ftp -i -s:"%d%\%ftpConf%"
-::É¾³ýÁÙÊ±ÎÄ¼þ
+::åˆ é™¤ä¸´æ—¶æ–‡ä»¶
 del %ftpConf%
 echo =====================================================================================
 echo =====================================================================================
-echo ==ÎÄ¼þÒÑÉÏ´«µ½ %Ip% µÄÄ¿Â¼ %uploadPath%£¬ÇëÈ·ÈÏ²¢ÖØÆôÓ¦ÓÃ£¡
+echo ==æ–‡ä»¶å·²ä¸Šä¼ åˆ° %Ip% çš„ç›®å½• %uploadPath%ï¼Œè¯·ç¡®è®¤å¹¶é‡å¯åº”ç”¨ï¼
 echo =====================================================================================
 echo =====================================================================================
 echo.
