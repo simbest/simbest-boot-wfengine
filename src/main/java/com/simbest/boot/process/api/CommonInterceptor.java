@@ -65,6 +65,7 @@ public class CommonInterceptor extends HandlerInterceptorAdapter {
         if(sysAppConfig==null){
             responseFalse(request, response, JsonResponse.CODE_NULL);
             res = false;
+            return res;
         }
 
         /*1，校验来源系统token有效期*/
