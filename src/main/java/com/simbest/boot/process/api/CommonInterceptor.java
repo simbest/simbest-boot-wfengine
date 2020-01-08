@@ -98,6 +98,7 @@ public class CommonInterceptor extends HandlerInterceptorAdapter {
         /*3.校验本地系统IP白名单和来源系统IP是否符合*/
         if (res) {
             String remoteAddr = request.getRemoteAddr();//得到来访者的IP地址
+            log.error("来访者系统IP："+sysAppConfig.getAppCode()+remoteAddr);
             if(sysAppConfig.getWhiteHost() == null){
                 res = true;
             }else if (sysAppConfig.getWhiteHost().contains(remoteAddr)) {
