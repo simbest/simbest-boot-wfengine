@@ -16,12 +16,6 @@ import java.util.Map;
  *@Version 1.0
  **/
 public interface IProcessDeploymentService {
-    /**
-     * 创建部署
-     * @param map
-     * @return
-     */
-    public int deploymentsAdd(Map<String,Object> map) ;
 
     /**
      * 查询列表

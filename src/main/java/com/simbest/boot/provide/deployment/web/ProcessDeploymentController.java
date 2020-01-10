@@ -36,35 +36,6 @@ public class ProcessDeploymentController {
     @Autowired
     private IProcessDeploymentService processDeploymentService;
 
-    @ApiOperation(value = "创建部署，tenantId必填")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "file", value = "部署文件", dataType = "File", paramType = "query"),
-            @ApiImplicitParam(name = "name", value = "DeploymentName", dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "category", value = "分类", dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "tenantId", value = "租户ID", dataType = "String", paramType = "query")
-    })
-    @PostMapping(value = {"/deploymentsAdd","/sso/deploymentsAdd","/api/deploymentsAdd","/anonymous/deploymentsAdd"})
-    public JsonResponse deploymentsAdd(@RequestParam("file") MultipartFile file,String name,String category,String tenantId) {
-        if(tenantId==null){
-            return JsonResponse.fail("租户tenantId是空的，请检查！");
-        }
-        try {
-            Map<String,Object> map = Maps.newHashMap( );
-            map.put( "name",name );
-            map.put( "category",category);
-            map.put( "tenantId", tenantId);
-            map.put( "file",file );
-            int i = processDeploymentService.deploymentsAdd(map);
-            if(i>0){
-                return JsonResponse.success("部署成功！");
-            }else{
-                return JsonResponse.fail("部署失败！");
-            }
-        } catch (Exception e) {
-            return GlobalExceptionRegister.returnErrorResponse(e);
-        }
-    }
-
     @ApiOperation(value = "自动部署专用，tenantId必填")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "file", value = "部署文件", dataType = "File", paramType = "query"),

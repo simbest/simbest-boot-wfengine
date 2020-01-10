@@ -13,7 +13,6 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
@@ -66,38 +65,6 @@ public class ProcessDeploymentServiceImpl implements IProcessDeploymentService {
             builder.deploy();
             return 1;
         } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
-    /**
-     * 创建部署
-     * @param map
-     * @return
-     */
-    @Override
-    public int deploymentsAdd(Map<String, Object> map) {
-        MultipartFile file = (MultipartFile) map.get("file");
-        String name = (String) map.get("name");
-        String category = (String) map.get("category");
-        String tenantId = (String) map.get("tenantId");
-        ZipInputStream zipIn = null;
-        try {
-            zipIn = new ZipInputStream(file.getInputStream());
-            DeploymentBuilder builder = baseFlowableProcessApi.getRepositoryService().createDeployment();
-            builder.addZipInputStream(zipIn);
-            if(name!=null){
-                builder.name(name);
-            }
-            if(category!=null){
-                builder.category(category);
-            }
-            if(tenantId!=null){
-                builder .tenantId(tenantId);
-            }
-            builder .deploy();
-            return 1;
-        } catch (IOException e) {
             e.printStackTrace();
             return 0;
         }
