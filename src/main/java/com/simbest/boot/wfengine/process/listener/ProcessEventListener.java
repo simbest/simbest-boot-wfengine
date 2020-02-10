@@ -1,5 +1,6 @@
 package com.simbest.boot.wfengine.process.listener;//package com.simbest.boot.wfdriver.process.listener;
 
+import cn.hutool.core.map.MapUtil;
 import com.google.common.collect.Maps;
 import com.simbest.boot.wfengine.api.BaseFlowableProcessApi;
 import com.simbest.boot.wfengine.process.api.CallFlowableProcessApi;
@@ -25,16 +26,23 @@ import java.util.Map;
 @Slf4j
 @Component
 public class ProcessEventListener implements FlowableEventListener {
+
     @Autowired
     private BaseFlowableProcessApi baseFlowableProcessApi;
+
     @Autowired
     private CallFlowableProcessApi callFlowableProcessApi;
+
     @Override
     public void onEvent(FlowableEvent flowableEvent) {
         log.debug("--------------------------------ProcessEventListener监听开始-----------------");
         FlowableEngineEventType flowableEventType = (FlowableEngineEventType) flowableEvent.getType();
         FlowableEntityEvent flowableEntityEvent =(FlowableEntityEvent) flowableEvent;
         HistoricProcessInstanceEntity historyInstance = (HistoricProcessInstanceEntity) flowableEntityEvent.getEntity();
+        // 流程启动后获取变量
+        Map<String,Object> variables = baseFlowableProcessApi.getRuntimeService().getVariables(historyInstance.getProcessInstanceId());
+        String orgCode = MapUtil.getStr( variables,"orgCode" );
+        String postId = MapUtil.getStr( variables,"postId" );
         Map<String ,Object> map=Maps.newHashMap();
         String tenantId = historyInstance.getTenantId();
         map.put("tenantId",historyInstance.getTenantId());
@@ -58,6 +66,7 @@ public class ProcessEventListener implements FlowableEventListener {
         map.put("startTime",historyInstance.getStartTime()!=null?DateUtil.getDate(historyInstance.getStartTime(),DateUtil.timestampPattern1):null);
         map.put("startUserId",historyInstance.getStartUserId());
         map.put("superProcessInstanceId",historyInstance.getSuperProcessInstanceId());
+        map.put( "creatorIdentity",historyInstance.getStartUserId().concat( "#" ).concat( orgCode ).concat( "#" ).concat( postId ) );
 
         switch (flowableEventType) {
             case HISTORIC_PROCESS_INSTANCE_CREATED:
