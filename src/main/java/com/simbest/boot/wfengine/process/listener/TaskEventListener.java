@@ -7,6 +7,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Maps;
+import com.simbest.boot.util.json.JacksonUtils;
 import com.simbest.boot.wfengine.api.BaseFlowableProcessApi;
 import com.simbest.boot.wfengine.process.api.CallFlowableProcessApi;
 import com.simbest.boot.util.DateUtil;
@@ -47,9 +48,10 @@ public class TaskEventListener implements FlowableEventListener {
         Map<String ,Object> map=Maps.newHashMap();
         // 获取流程环节上变量
         Map<String,Object> variables = baseFlowableProcessApi.getTaskService().getVariables(task.getId());
+        log.debug( "获取流程环节中的参数【{}】", JacksonUtils.obj2json( variables ) );
         String participantIdentity = MapUtil.getStr( variables,"participantIdentity" );
         String participantIdentitys = MapUtil.getStr( variables,"participantIdentitys" );
-        String assignee = task.getOwner();
+        String assignee = task.getAssignee();
         if ( StrUtil.isNotEmpty( participantIdentity ) ){
             map.put("participantIdentity",participantIdentity);
         }
@@ -91,6 +93,7 @@ public class TaskEventListener implements FlowableEventListener {
         map.put("claimTime",task.getClaimTime()!=null?DateUtil.getDate(task.getClaimTime(),DateUtil.timestampPattern1):null);
         map.put( "fromTaskId",fromTaskId );
 
+        log.debug( "流程环节监听回调应用传递的参数【{}】", JacksonUtils.obj2json( map ) );
         switch (flowableEventType) {
             case TASK_CREATED:
                 log.debug("--------------------------------TASK_CREATED监听开始-----------------");
