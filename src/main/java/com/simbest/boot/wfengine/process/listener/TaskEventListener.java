@@ -63,7 +63,6 @@ public class TaskEventListener implements FlowableEventListener {
                     break;
                 }
             }
-            map.put("participantIdentity",task.getFormKey());
         }
         String fromTaskId = MapUtil.getStr( variables,"fromTaskId" );
         String tenantId = task.getTenantId();
