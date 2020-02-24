@@ -4,9 +4,13 @@ package com.simbest.boot.wfengine.process.listener;/**
  */
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.Dict;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Maps;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import com.simbest.boot.util.json.JacksonUtils;
 import com.simbest.boot.wfengine.api.BaseFlowableProcessApi;
 import com.simbest.boot.wfengine.process.api.CallFlowableProcessApi;
@@ -20,6 +24,7 @@ import org.flowable.task.service.impl.persistence.entity.TaskEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -45,20 +50,24 @@ public class TaskEventListener implements FlowableEventListener {
         FlowableEngineEventType flowableEventType = (FlowableEngineEventType) flowableEvent.getType();
         FlowableEntityEvent flowableEntityEvent =(FlowableEntityEvent) flowableEvent;
         TaskEntity task = (TaskEntity)flowableEntityEvent.getEntity();
+        log.debug( "流程中的内置环节变量task【{}】", JacksonUtils.obj2json( task ) );
         Map<String ,Object> map=Maps.newHashMap();
         // 获取流程环节上变量
         Map<String,Object> variables = baseFlowableProcessApi.getTaskService().getVariables(task.getId());
         log.debug( "获取流程环节中的参数【{}】", JacksonUtils.obj2json( variables ) );
         String participantIdentity = MapUtil.getStr( variables,"participantIdentity" );
-        String participantIdentitys = MapUtil.getStr( variables,"participantIdentitys" );
+        //List<Map<String,Object>> participantIdentitys = MapUtil.get( variables, "participantIdentitys", List.class );
+        String participantIdentityStr = MapUtil.getStr( variables, "participantIdentitys" );
+        participantIdentityStr = StrUtil.replace( participantIdentityStr,"&quot;", "\"");
+        List<Map<String,Object>> participantIdentitys = JacksonUtils.json2Type( participantIdentityStr, new TypeReference<List<Map<String, Object>>>() {} );
         String assignee = task.getAssignee();
         if ( StrUtil.isNotEmpty( participantIdentity ) ){
             map.put("participantIdentity",participantIdentity);
         }
-        if ( StrUtil.isNotEmpty( participantIdentitys ) ){
-            String[] participantIdentityArray = StrUtil.split( participantIdentitys,"," );
-            for ( String participantIdentityTmp:participantIdentityArray ){
-                if ( !StrUtil.containsIgnoreCase( participantIdentityTmp, assignee ) ) {
+        if ( CollectionUtil.isNotEmpty( participantIdentitys ) ){
+            for ( Map<String,Object> participantIdentityMap:participantIdentitys ){
+                String participantIdentityTmp = MapUtil.getStr( participantIdentityMap,assignee);
+                if ( StrUtil.isNotEmpty(participantIdentityTmp)) {
                     map.put("participantIdentity",participantIdentityTmp);
                     break;
                 }
@@ -124,5 +133,19 @@ public class TaskEventListener implements FlowableEventListener {
     @Override
     public String getOnTransaction() {
         return null;
+    }
+
+    public static void main ( String[] args ) {
+        //Map<String,Object> map = Dict.create().set( "participantIdentitys","[{hadmin3=hadmin3#2709049956525942918#52}, {jixisheng=jixisheng#4772354741955101926#PS650184285046000107}]" );
+        //List<Map<String,Object>> participantIdentitys = MapUtil.get( map, "participantIdentitys", List.class );
+        //Map<String,Object> mapTmap = participantIdentitys.get( 0 );
+
+        //Gson gson = new Gson();
+        //List<Map<String,String>> list = gson.fromJson(MapUtil.getStr( map,"participantIdentitys" ), new TypeToken<List<Map<String, String>>>(){}.getType());
+
+        String str = "[{&quot;hadmin3&quot;:&quot;hadmin3#2709049956525942918#52&quot;},{&quot;jixisheng&quot;:&quot;jixisheng#4772354741955101926#PS650184285046000107&quot;}]";
+        str = StrUtil.replace( str,"&quot;", "\"");
+        List<Map<String,Object>> participantIdentitys = JacksonUtils.json2Type( str, new TypeReference<List<Map<String, Object>>>() {} );
+        System.out.println(participantIdentitys.get( 0 ).get( "hadmin3" ));
     }
 }
