@@ -5,6 +5,7 @@ package com.simbest.boot.wfengine.provide.processDefinitions.service;/**
 
 import org.flowable.engine.repository.ProcessDefinition;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -30,4 +31,12 @@ public interface IProcessDefinitionsService {
      * @return
      */
     List<ProcessDefinition> definitionsQuery(Map<String,Object> map);
+
+    /**
+     * 获取流程图
+     * @param processDefinitionId
+     * @param processInstanceId
+     * @return
+     */
+    InputStream getDiagram(String processDefinitionId, String processInstanceId);
 }

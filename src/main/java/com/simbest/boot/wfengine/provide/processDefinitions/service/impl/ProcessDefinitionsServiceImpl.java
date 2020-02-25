@@ -6,10 +6,12 @@ package com.simbest.boot.wfengine.provide.processDefinitions.service.impl;/**
 import com.simbest.boot.wfengine.api.BaseFlowableProcessApi;
 import com.simbest.boot.wfengine.provide.processDefinitions.service.IProcessDefinitionsService;
 import lombok.extern.slf4j.Slf4j;
+import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -59,5 +61,27 @@ public class ProcessDefinitionsServiceImpl implements IProcessDefinitionsService
                 .orderByProcessDefinitionVersion()
                 .listPage(page,size);
         return list;
+    }
+
+    /**
+     * 获取流程图
+     *
+     * @param processDefinitionId
+     * @param processInstanceId
+     * @return
+     */
+    @Override
+    public InputStream getDiagram(String processDefinitionId, String processInstanceId) {
+        ProcessDefinition pd = null;
+        if(processDefinitionId!=null){
+            pd = baseFlowableProcessApi.getRepositoryService().createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
+            return baseFlowableProcessApi.getRepositoryService().getResourceAsStream(pd.getDeploymentId(), pd.getDiagramResourceName());
+        }
+        if(processInstanceId!=null){
+            HistoricProcessInstance historicProcessInstance= baseFlowableProcessApi.getHistoryService().createHistoricProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+            pd = baseFlowableProcessApi.getRepositoryService().createProcessDefinitionQuery().processDefinitionId(historicProcessInstance.getProcessDefinitionId()).singleResult();
+            return baseFlowableProcessApi.getRepositoryService().getResourceAsStream(pd.getDeploymentId(), pd.getDiagramResourceName());
+        }
+        return null;
     }
 }

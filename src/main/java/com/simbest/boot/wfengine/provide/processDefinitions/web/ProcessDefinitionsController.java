@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -66,5 +67,16 @@ public class ProcessDefinitionsController {
     public JsonResponse definitionsGet (String processDefinitionId) {
         ProcessDefinition processDefinition = processDefinitionsService.definitionsGet(processDefinitionId);
         return JsonResponse.success(processDefinition);
+    }
+
+    @ApiOperation(value = "获取流程图，两个参数填任意一个，如果都填写，以processDefinitionId为准")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "processDefinitionId", value = "流程定义ID", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "processInstanceId", value = "流程实例ID", dataType = "String", paramType = "query")
+    })
+    @PostMapping(value = {"/getDiagram","/sso/getDiagram","/api/getDiagram","/anonymous/getDiagram"})
+    public JsonResponse getDiagram (String processDefinitionId,String processInstanceId) {
+        InputStream inputStream = processDefinitionsService.getDiagram(processDefinitionId,processInstanceId);
+        return JsonResponse.success(inputStream);
     }
 }
