@@ -2,6 +2,7 @@ package com.simbest.boot.wfengine.process.listener;//package com.simbest.boot.wf
 
 import cn.hutool.core.map.MapUtil;
 import com.google.common.collect.Maps;
+import com.simbest.boot.util.json.JacksonUtils;
 import com.simbest.boot.wfengine.api.BaseFlowableProcessApi;
 import com.simbest.boot.wfengine.process.api.CallFlowableProcessApi;
 import com.simbest.boot.util.DateUtil;
@@ -10,10 +11,14 @@ import org.flowable.common.engine.api.delegate.event.FlowableEngineEventType;
 import org.flowable.common.engine.api.delegate.event.FlowableEntityEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableEventListener;
+import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.impl.persistence.entity.HistoricProcessInstanceEntity;
+import org.flowable.task.service.impl.persistence.entity.TaskEntity;
+import org.flowable.variable.service.impl.persistence.entity.HistoricVariableInstanceEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,9 +45,13 @@ public class ProcessEventListener implements FlowableEventListener {
         FlowableEntityEvent flowableEntityEvent =(FlowableEntityEvent) flowableEvent;
         HistoricProcessInstanceEntity historyInstance = (HistoricProcessInstanceEntity) flowableEntityEvent.getEntity();
         // 流程启动后获取变量
-        Map<String,Object> variables = baseFlowableProcessApi.getRuntimeService().getVariables(historyInstance.getProcessInstanceId());
+        //Map<String,Object> variables = baseFlowableProcessApi.getRuntimeService().getVariables(historyInstance.getProcessInstanceId());
+        Map<String,Object> variables = historyInstance.getProcessVariables();
+        log.debug( "获取流程中的流程实例实体【{}】", historyInstance.toString() );
+        log.debug( "获取流程中的参数【{}】", JacksonUtils.obj2json( variables ) );
         String orgCode = MapUtil.getStr( variables,"orgCode" );
         String postId = MapUtil.getStr( variables,"postId" );
+        String inputUserId = MapUtil.getStr( variables,"inputUserId" );
         Map<String ,Object> map=Maps.newHashMap();
         String tenantId = historyInstance.getTenantId();
         map.put("tenantId",historyInstance.getTenantId());
@@ -66,15 +75,24 @@ public class ProcessEventListener implements FlowableEventListener {
         map.put("startTime",historyInstance.getStartTime()!=null?DateUtil.getDate(historyInstance.getStartTime(),DateUtil.timestampPattern1):null);
         map.put("startUserId",historyInstance.getStartUserId());
         map.put("superProcessInstanceId",historyInstance.getSuperProcessInstanceId());
-        map.put( "creatorIdentity",historyInstance.getStartUserId().concat( "#" ).concat( orgCode ).concat( "#" ).concat( postId ) );
+        //map.put( "creatorIdentity",inputUserId.concat( "#" ).concat( orgCode ).concat( "#" ).concat( postId ) );
 
+        log.debug( "流程监听回调应用传递的参数【{}】", JacksonUtils.obj2json( map ) );
         switch (flowableEventType) {
+            case PROCESS_STARTED:    //流程启动后
+                log.debug("--------------------------------PROCESS_STARTED监听开始-----------------");
+                callFlowableProcessApi.process_instance_created(tenantId,map);
+                break;
             case HISTORIC_PROCESS_INSTANCE_CREATED:
                 log.debug("--------------------------------HISTORIC_PROCESS_INSTANCE_CREATED监听开始-----------------");
                 callFlowableProcessApi.process_instance_created(tenantId,map);
                 break;
             case HISTORIC_PROCESS_INSTANCE_ENDED:
                 log.debug("--------------------------------HISTORIC_PROCESS_INSTANCE_ENDED监听开始-----------------");
+                callFlowableProcessApi.process_instance_ended(tenantId,map);
+                break;
+            case PROCESS_COMPLETED:     //流程结束时
+                log.debug("--------------------------------PROCESS_COMPLETED监听开始-----------------");
                 callFlowableProcessApi.process_instance_ended(tenantId,map);
                 break;
             default:

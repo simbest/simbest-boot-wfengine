@@ -3,12 +3,14 @@ package com.simbest.boot.wfengine.provide.processInstances.service.impl;/**
  * @create 2019/12/3 19:31.
  */
 
+import cn.hutool.core.map.MapUtil;
 import com.simbest.boot.wfengine.api.BaseFlowableProcessApi;
 import com.simbest.boot.base.exception.Exceptions;
 import com.simbest.boot.wfengine.provide.processInstances.service.IProcessInstancesService;
 import com.simbest.boot.util.json.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.map.HashedMap;
+import org.flowable.common.engine.impl.identity.Authentication;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,6 +48,9 @@ public class ProcessInstancesServiceImpl implements IProcessInstancesService {
         try {
             String processInstanceId = null;
             Map<String,Object> var = JacksonUtils.json2obj(stringJson,HashedMap.class);
+            String inputUserId = MapUtil.getStr( var,"inputUserId" );
+            //设置流程发起人
+            Authentication.setAuthenticatedUserId(inputUserId);
             if(processDefinitionId!=null){
                 ProcessInstance pi =baseFlowableProcessApi.getRuntimeService().startProcessInstanceById(processDefinitionId,var);
                 processInstanceId = pi.getId();
@@ -56,6 +61,8 @@ public class ProcessInstancesServiceImpl implements IProcessInstancesService {
                 ProcessInstance pi = baseFlowableProcessApi.getRuntimeService().startProcessInstanceByMessageAndTenantId(message,var,tenantId);
                 processInstanceId = pi.getId();
             }
+            //这个方法最终使用一个ThreadLocal类型的变量进行存储，也就是与当前的线程绑定，所以流程实例启动完毕之后，需要设置为null，防止多线程的时候出问题。
+            Authentication.setAuthenticatedUserId(null);
             result.put("processInstanceId",processInstanceId);
         }catch (Exception e ){
             log.error(Exceptions.getStackTraceAsString(e));

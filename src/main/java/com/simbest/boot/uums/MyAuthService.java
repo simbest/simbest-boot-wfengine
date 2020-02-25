@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
  * 作者: lishuyi
  * 时间: 2018/6/11  10:20
  */
-@Service
+//@Service
 public class MyAuthService extends AbstractAuthService {
 
     @Autowired
