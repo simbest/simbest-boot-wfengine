@@ -3,7 +3,9 @@ package com.simbest.boot.wfengine.provide.processDefinitions.web;/**
  * @create 2019/12/3 18:48.
  */
 
+import cn.hutool.core.io.IoUtil;
 import com.google.common.collect.Maps;
+import com.simbest.boot.base.exception.Exceptions;
 import com.simbest.boot.base.web.response.JsonResponse;
 import com.simbest.boot.wfengine.provide.processDefinitions.service.IProcessDefinitionsService;
 import io.swagger.annotations.Api;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +79,18 @@ public class ProcessDefinitionsController {
     })
     @PostMapping(value = {"/getDiagram","/sso/getDiagram","/api/getDiagram","/anonymous/getDiagram"})
     public JsonResponse getDiagram (String processDefinitionId,String processInstanceId) {
-        InputStream inputStream = processDefinitionsService.getDiagram(processDefinitionId,processInstanceId);
-        return JsonResponse.success(inputStream);
+        String pngContent = null;
+        JsonResponse jsonResponse = new JsonResponse();
+            try {
+                InputStream inputStream = processDefinitionsService.getDiagram(processDefinitionId,processInstanceId);
+                byte[] bytes = IoUtil.readBytes( inputStream,inputStream.available() );
+                //pngContent = new String(bytes);
+                jsonResponse = JsonResponse.success(bytes,null);
+                return jsonResponse;
+        } catch ( IOException e ) {
+            Exceptions.printException( e );
+            JsonResponse.fail(null);
+            return jsonResponse;
+        }
     }
 }
