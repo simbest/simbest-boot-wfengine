@@ -53,7 +53,7 @@ public class EngineWqqueryHttpService {
                     .header("ACCESSTOKEN",ACCESSTOKEN)
                     .charset("utf-8")
                     .asBean(JsonResponse.class);
-            if (!jsonResponse.getErrcode().equals(JsonResponse.ERROR_CODE)) {
+            if (jsonResponse.getErrcode().equals(JsonResponse.ERROR_CODE)) {
                 log.error(SOURCESYSTEMID+"调用"+url+"失败！");
                 map.put("state",ConstantsUtils.FAILE);
             } else if (jsonResponse.getErrcode().equals(JsonResponse.SUCCESS_CODE)) {
@@ -99,7 +99,7 @@ public class EngineWqqueryHttpService {
                     .header("ACCESSTOKEN",ACCESSTOKEN)
                     .charset("utf-8")
                     .asBean(JsonResponse.class);
-            if (!jsonResponse.getErrcode().equals(JsonResponse.ERROR_CODE)) {
+            if (jsonResponse.getErrcode().equals(JsonResponse.ERROR_CODE)) {
                 log.error(SOURCESYSTEMID+"调用"+url+"失败！");
                 map.put("state",ConstantsUtils.FAILE);
             } else if (jsonResponse.getErrcode().equals(JsonResponse.SUCCESS_CODE)) {

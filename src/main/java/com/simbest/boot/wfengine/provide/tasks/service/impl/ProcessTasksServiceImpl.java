@@ -63,6 +63,7 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
                 return 0;
             }
         }catch (Exception e ){
+            log.error(Exceptions.getStackTraceAsString(e));
             return 0;
         }
         return i;
