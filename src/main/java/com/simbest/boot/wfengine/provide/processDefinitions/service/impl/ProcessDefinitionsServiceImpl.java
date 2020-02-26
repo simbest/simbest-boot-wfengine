@@ -3,29 +3,21 @@ package com.simbest.boot.wfengine.provide.processDefinitions.service.impl;/**
  * @create 2019/12/3 18:49.
  */
 
-import cn.hutool.core.collection.CollectionUtil;
 import com.simbest.boot.wfengine.api.BaseFlowableProcessApi;
 import com.simbest.boot.wfengine.provide.processDefinitions.service.IProcessDefinitionsService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.flowable.bpmn.model.BpmnModel;
-import org.flowable.bpmn.model.FlowElement;
-import org.flowable.bpmn.model.FlowNode;
-import org.flowable.bpmn.model.SequenceFlow;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.history.HistoricProcessInstance;
-import org.flowable.engine.impl.RepositoryServiceImpl;
-import org.flowable.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.flowable.engine.repository.ProcessDefinition;
-import org.flowable.engine.runtime.Execution;
-import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.image.ProcessDiagramGenerator;
 import org.flowable.task.api.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -93,10 +85,33 @@ public class ProcessDefinitionsServiceImpl implements IProcessDefinitionsService
         }
         if(processInstanceId!=null){
             HistoricProcessInstance historicProcessInstance= baseFlowableProcessApi.getHistoryService().createHistoricProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
-            pd = baseFlowableProcessApi.getRepositoryService().createProcessDefinitionQuery().processDefinitionId(historicProcessInstance.getProcessDefinitionId()).singleResult();
-            InputStream inputStream = baseFlowableProcessApi.getRepositoryService().getResourceAsStream(pd.getDeploymentId(), pd.getDiagramResourceName());
-            /*return baseFlowableProcessApi.getRepositoryService().getResourceAsStream(pd.getDeploymentId(), pd.getDiagramResourceName());*/
-            return inputStream;
+            List<HistoricActivityInstance> historyProcess  = baseFlowableProcessApi.getHistoryService() // 历史相关Service
+                    .createHistoricActivityInstanceQuery() // 创建历史活动实例查询
+                    .processInstanceId(processInstanceId) // 执行流程实例id
+                    .finished()
+                    .list();
+            List<String> activityIds = new ArrayList<>();
+            List<String> flows = new ArrayList<>();
+            //获取流程图
+            BpmnModel bpmnModel = baseFlowableProcessApi.getRepositoryService().getBpmnModel(historicProcessInstance.getProcessDefinitionId());
+            for (HistoricActivityInstance hi : historyProcess) {
+                String activityType = hi.getActivityType();
+                if (activityType.equals("sequenceFlow") || activityType.equals("exclusiveGateway")) {
+                    flows.add(hi.getActivityId());
+                } else if (activityType.equals("userTask") || activityType.equals("startEvent")) {
+                    activityIds.add(hi.getActivityId());
+                }
+            }
+            List<Task> tasks = baseFlowableProcessApi.getTaskService().createTaskQuery().processInstanceId(processInstanceId).list();
+            for (Task task : tasks) {
+                activityIds.add(task.getTaskDefinitionKey());
+            }
+            ProcessEngineConfiguration engConf = baseFlowableProcessApi.getDefaultProcessEngine().getProcessEngineConfiguration();
+            //定义流程画布生成器
+            ProcessDiagramGenerator processDiagramGenerator = engConf.getProcessDiagramGenerator();
+            InputStream in = processDiagramGenerator.generateDiagram(bpmnModel, "png", activityIds, flows, engConf.getActivityFontName(), engConf.getLabelFontName(), engConf.getAnnotationFontName(), engConf.getClassLoader(), 1.0, true);
+
+            return in;
         }
         return null;
     }
