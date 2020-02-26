@@ -68,6 +68,7 @@ public class ProcessDefinitionsController {
         return JsonResponse.success(processDefinition);
     }
 
+
     /**
      * 获取流程图，两个参数填任意一个，如果都填写，以processDefinitionId为准
      * @param processDefinitionId
@@ -77,12 +78,12 @@ public class ProcessDefinitionsController {
      * @throws Exception
      */
     @GetMapping(value = {"/getDiagramhttp","/sso/getDiagramhttp","/api/getDiagramhttp","/anonymous/getDiagramhttp"})
-    public String getDiagramhttp (String processDefinitionId,String processInstanceId,HttpServletResponse response) throws Exception{
-        InputStream in = processDefinitionsService.getDiagram(null,processInstanceId);
+    public String getDiagramhttp (String processDefinitionId,String processInstanceId,HttpServletResponse response) throws Exception {
+        InputStream in = processDefinitionsService.getDiagram(null, processInstanceId);
         //3：从response对象获取输出流
         OutputStream out = response.getOutputStream();
         //4：将输入流中的数据读取出来，写到输出流中
-        for(int b=-1;(b=in.read())!=-1;){
+        for (int b = -1; (b = in.read()) != -1; ) {
             out.write(b);
         }
         out.close();
@@ -90,4 +91,5 @@ public class ProcessDefinitionsController {
         //将图写到页面上，用输出流写
         return null;
     }
+
 }
