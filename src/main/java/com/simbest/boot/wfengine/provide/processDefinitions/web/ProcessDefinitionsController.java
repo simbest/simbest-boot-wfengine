@@ -13,12 +13,11 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -69,14 +68,26 @@ public class ProcessDefinitionsController {
         return JsonResponse.success(processDefinition);
     }
 
-    @ApiOperation(value = "获取流程图，两个参数填任意一个，如果都填写，以processDefinitionId为准")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "processDefinitionId", value = "流程定义ID", dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "processInstanceId", value = "流程实例ID", dataType = "String", paramType = "query")
-    })
-    @PostMapping(value = {"/getDiagram","/sso/getDiagram","/api/getDiagram","/anonymous/getDiagram"})
-    public JsonResponse getDiagram (String processDefinitionId,String processInstanceId) {
-        InputStream inputStream = processDefinitionsService.getDiagram(processDefinitionId,processInstanceId);
-        return JsonResponse.success(inputStream);
+    /**
+     * 获取流程图，两个参数填任意一个，如果都填写，以processDefinitionId为准
+     * @param processDefinitionId
+     * @param processInstanceId
+     * @param response
+     * @return
+     * @throws Exception
+     */
+    @GetMapping(value = {"/getDiagramhttp","/sso/getDiagramhttp","/api/getDiagramhttp","/anonymous/getDiagramhttp"})
+    public String getDiagramhttp (String processDefinitionId,String processInstanceId,HttpServletResponse response) throws Exception{
+        InputStream in = processDefinitionsService.getDiagram(null,processInstanceId);
+        //3：从response对象获取输出流
+        OutputStream out = response.getOutputStream();
+        //4：将输入流中的数据读取出来，写到输出流中
+        for(int b=-1;(b=in.read())!=-1;){
+            out.write(b);
+        }
+        out.close();
+        in.close();
+        //将图写到页面上，用输出流写
+        return null;
     }
 }
