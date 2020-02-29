@@ -3,7 +3,10 @@ package com.simbest.boot.wfengine.process.listener;/**
  * @create 2019/12/9 11:59.
  */
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Maps;
 import com.simbest.boot.util.DateUtil;
 import com.simbest.boot.util.json.JacksonUtils;
@@ -25,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -57,12 +61,28 @@ public class TaskEventListener implements FlowableEventListener {
         FlowableEngineEventType flowableEventType = (FlowableEngineEventType) flowableEvent.getType();
         FlowableEntityEvent flowableEntityEvent =(FlowableEntityEvent) flowableEvent;
         TaskEntity task = (TaskEntity)flowableEntityEvent.getEntity();
+        //log.debug( "流程中的内置环节变量task【{}】", JacksonUtils.obj2json( task ) );
         Map<String ,Object> map=Maps.newHashMap();
         // 获取流程环节上变量
         Map<String,Object> variables = baseFlowableProcessApi.getTaskService().getVariables(task.getId());
+        log.debug( "获取流程环节中的参数【{}】", JacksonUtils.obj2json( variables ) );
         String participantIdentity = MapUtil.getStr( variables,"participantIdentity" );
-        String participantIdentitys = MapUtil.getStr( variables,"participantIdentitys" );
+        String participantIdentityStr = MapUtil.getStr( variables, "participantIdentitys" );
+        participantIdentityStr = StrUtil.replace( participantIdentityStr,"&quot;", "\"");
+        List<Map<String,Object>> participantIdentitys = JacksonUtils.json2Type( participantIdentityStr, new TypeReference<List<Map<String, Object>>>() {} );
         String assignee = task.getAssignee();
+        if ( StrUtil.isNotEmpty( participantIdentity ) ){
+            map.put("participantIdentity",participantIdentity);
+        }
+        if ( CollectionUtil.isNotEmpty( participantIdentitys ) ){
+            for ( Map<String,Object> participantIdentityMap:participantIdentitys ){
+                String participantIdentityTmp = MapUtil.getStr( participantIdentityMap,assignee);
+                if ( StrUtil.isNotEmpty(participantIdentityTmp)) {
+                    map.put("participantIdentity",participantIdentityTmp);
+                    break;
+                }
+            }
+        }
         String fromTaskId = MapUtil.getStr( variables,"fromTaskId" );
         String tenantId = task.getTenantId();
         map.put("tenantId",task.getTenantId());
@@ -80,7 +100,7 @@ public class TaskEventListener implements FlowableEventListener {
         map.put("name",task.getName());
         map.put("description",task.getDescription());
         map.put("owner",task.getOwner());
-        map.put("assignee",task.getAssignee());
+        map.put("assignee",assignee);
         map.put("delegationState",task.getDelegationState()!=null?task.getDelegationState().name():null);
         map.put("priority",task.getPriority());
         map.put("taskCreateTime",task.getCreateTime()!=null?DateUtil.getDate(task.getCreateTime(),DateUtil.timestampPattern1):null);
