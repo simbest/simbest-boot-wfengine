@@ -6,6 +6,7 @@ package com.simbest.boot.wfengine.provide.tasks.model;/**
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  *@ClassName NewTaskInfo
@@ -17,9 +18,11 @@ import java.util.List;
 @Data
 public class NewTaskInfo {
 
+    private String assignee;
     private List<String> assignees;
     private String taskName;
     private String taskDefinitionKey;
     private String processInstanceId;
     private String processDefinitionId;
+    private Map<String,Object> variables;
 }

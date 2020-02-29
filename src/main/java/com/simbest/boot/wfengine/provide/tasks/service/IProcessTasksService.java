@@ -2,7 +2,6 @@ package com.simbest.boot.wfengine.provide.tasks.service;
 
 import com.simbest.boot.wfengine.provide.tasks.model.ProcessTasksInfo;
 import com.simbest.boot.wfengine.rabbitmq.model.MqReceive;
-import org.flowable.task.api.Task;
 
 import java.util.List;
 import java.util.Map;
@@ -40,7 +39,7 @@ public interface IProcessTasksService {
      * @param processDefinitionId 流程定义ID
      * @return
      */
-    public List<String> createTaskEntityImpls(List<String> assignees,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId);
+    public List<String> createTaskEntityImpls(List<String> assignees,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId,Map<String,Object> variables);
 
     /**
      * 手动创建任务
@@ -51,14 +50,8 @@ public interface IProcessTasksService {
      * @param processDefinitionId 流程定义ID
      * @return 任务ID
      */
-    public String createTaskEntityImpl(String assignee,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId);
+    public String createTaskEntityImpl(String assignee,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId,Map<String,Object> variables);
 
-    /**
-     * 完成当前节点，不再流程下一步
-     * @param task 当前任务
-     * @return 是否可以调用本方法
-     */
-    public boolean finshTask(Task task);
 
     /**
      * 完成当前节点，不再流程下一步

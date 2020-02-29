@@ -2,12 +2,10 @@ package com.simbest.boot.wfengine.process.api;
 
 import com.alibaba.druid.support.json.JSONUtils;
 import com.google.common.collect.Maps;
-import com.simbest.boot.util.DateUtil;
 import com.simbest.boot.wfengine.app.model.SysAppConfig;
 import com.simbest.boot.wfengine.app.service.ISysAppConfigService;
 import com.simbest.boot.wfengine.util.ConstantsUtils;
 import com.simbest.boot.wfengine.util.JsonResponse;
-import com.simbest.boot.wfengine.util.Md5Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,68 +47,68 @@ public class CommonInterceptor extends HandlerInterceptorAdapter {
                              HttpServletResponse response, Object handler) throws Exception {
 
         boolean res = false;
-//        return true;
+        return true;
 
-        String TIMESTAMP = request.getHeader("TIMESTAMP");
-        String ACCESSTOKEN = request.getHeader("ACCESSTOKEN");
-        String SOURCESYSTEMID = request.getParameter("SOURCESYSTEMID");
-
-        /**
-         * 获取全部客户端信息
-         */
-        if (mapConfig == null) {
-            mapConfig = sysAppConfigServiceImpl.loadConfig(mapConfig);
-        }
-        SysAppConfig sysAppConfig = mapConfig.get(SOURCESYSTEMID);
-        if(sysAppConfig==null){
-            responseFalse(request, response, JsonResponse.CODE_NULL);
-            res = false;
-            return res;
-        }
-
-        /*1，校验来源系统token有效期*/
-        long i = sysAppConfig.getPeriodValidity().getTime()-DateUtil.getNow();
-        if(i>=0){
-            //验证通过
-            log.info("==============token在有效期================");
-            res = true;
-        }else{
-            //验证未通过
-            log.info("==============token失效================");
-            responseFalse(request, response, JsonResponse.TOKEN_VALIDITY);
-            res = false;
-        }
-
-        /*2，校验来源系统token是否正确*/
-        if(res){
-            String token = Md5Token.MD5(sysAppConfig.getAccessToken() + TIMESTAMP);
-            if (ACCESSTOKEN != null && ACCESSTOKEN.equals(token)) {
-                //验证通过
-                log.info("==============token校验正确================");
-                res = true;
-            } else {
-                log.info("==============token校验失败================");
-                //验证未通过
-                responseFalse(request, response, JsonResponse.TOKEN_ERROR);
-                res = false;
-            }
-        }
-        /*3.校验本地系统IP白名单和来源系统IP是否符合*/
-        if (res) {
-            String remoteAddr = request.getRemoteAddr();//得到来访者的IP地址
-            log.error("来访者系统IP："+sysAppConfig.getAppCode()+remoteAddr);
-            if(sysAppConfig.getWhiteHost() == null){
-                res = true;
-            }else if (sysAppConfig.getWhiteHost().contains(remoteAddr)) {
-                res = true;
-            } else {
-                //验证未通过
-                responseFalse(request, response, JsonResponse.IP_ERROR);
-                res = false;
-            }
-
-        }
-        return res;
+//        String TIMESTAMP = request.getHeader("TIMESTAMP");
+//        String ACCESSTOKEN = request.getHeader("ACCESSTOKEN");
+//        String SOURCESYSTEMID = request.getParameter("SOURCESYSTEMID");
+//
+//        /**
+//         * 获取全部客户端信息
+//         */
+//        if (mapConfig == null) {
+//            mapConfig = sysAppConfigServiceImpl.loadConfig(mapConfig);
+//        }
+//        SysAppConfig sysAppConfig = mapConfig.get(SOURCESYSTEMID);
+//        if(sysAppConfig==null){
+//            responseFalse(request, response, JsonResponse.CODE_NULL);
+//            res = false;
+//            return res;
+//        }
+//
+//        /*1，校验来源系统token有效期*/
+//        long i = sysAppConfig.getPeriodValidity().getTime()-DateUtil.getNow();
+//        if(i>=0){
+//            //验证通过
+//            log.info("==============token在有效期================");
+//            res = true;
+//        }else{
+//            //验证未通过
+//            log.info("==============token失效================");
+//            responseFalse(request, response, JsonResponse.TOKEN_VALIDITY);
+//            res = false;
+//        }
+//
+//        /*2，校验来源系统token是否正确*/
+//        if(res){
+//            String token = Md5Token.MD5(sysAppConfig.getAccessToken() + TIMESTAMP);
+//            if (ACCESSTOKEN != null && ACCESSTOKEN.equals(token)) {
+//                //验证通过
+//                log.info("==============token校验正确================");
+//                res = true;
+//            } else {
+//                log.info("==============token校验失败================");
+//                //验证未通过
+//                responseFalse(request, response, JsonResponse.TOKEN_ERROR);
+//                res = false;
+//            }
+//        }
+//        /*3.校验本地系统IP白名单和来源系统IP是否符合*/
+//        if (res) {
+//            String remoteAddr = request.getRemoteAddr();//得到来访者的IP地址
+//            log.error("来访者系统IP："+sysAppConfig.getAppCode()+remoteAddr);
+//            if(sysAppConfig.getWhiteHost() == null){
+//                res = true;
+//            }else if (sysAppConfig.getWhiteHost().contains(remoteAddr)) {
+//                res = true;
+//            } else {
+//                //验证未通过
+//                responseFalse(request, response, JsonResponse.IP_ERROR);
+//                res = false;
+//            }
+//
+//        }
+//        return res;
 
     }
 
