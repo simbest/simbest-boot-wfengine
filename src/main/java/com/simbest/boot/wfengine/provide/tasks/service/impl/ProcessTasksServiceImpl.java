@@ -3,16 +3,28 @@ package com.simbest.boot.wfengine.provide.tasks.service.impl;/**
  * @create 2019/12/3 21:58.
  */
 
-import com.simbest.boot.wfengine.api.BaseFlowableProcessApi;
+import com.google.common.collect.Maps;
 import com.simbest.boot.base.exception.Exceptions;
+import com.simbest.boot.util.CodeGenerator;
+import com.simbest.boot.util.DateUtil;
+import com.simbest.boot.util.json.JacksonUtils;
+import com.simbest.boot.util.security.LoginUtils;
+import com.simbest.boot.wfengine.api.BaseFlowableProcessApi;
+import com.simbest.boot.wfengine.process.cmd.*;
 import com.simbest.boot.wfengine.provide.tasks.model.ProcessTasksInfo;
 import com.simbest.boot.wfengine.provide.tasks.service.IProcessTasksService;
-import com.simbest.boot.util.json.JacksonUtils;
+import com.simbest.boot.wfengine.rabbitmq.model.MqReceive;
+import com.simbest.boot.wfengine.rabbitmq.service.IMqSendService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.map.HashedMap;
 import org.flowable.common.engine.impl.identity.Authentication;
+import org.flowable.engine.impl.persistence.entity.ActivityInstanceEntityImpl;
+import org.flowable.engine.impl.persistence.entity.ExecutionEntityImpl;
+import org.flowable.engine.impl.persistence.entity.HistoricActivityInstanceEntityImpl;
+import org.flowable.engine.runtime.Execution;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.TaskQuery;
+import org.flowable.task.service.impl.persistence.entity.TaskEntityImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,19 +41,32 @@ import java.util.Map;
  *@Version 1.0
  **/
 @Slf4j
-@Service
+@Service("processTasksServiceImpl")
 public class ProcessTasksServiceImpl implements IProcessTasksService {
 
     @Autowired
     private BaseFlowableProcessApi baseFlowableProcessApi;
+
+    @Autowired
+    private LoginUtils loginUtils;
+
+    @Autowired
+    private IMqSendService mqSendServiceImpl;
 
     @Override
     public int tasksAddComment(String currentUserCode,String taskId, String processInstanceId, String comment) {
         int i = 1;
         try {
             if(taskId!=null){
-                Authentication.setAuthenticatedUserId(currentUserCode);
-                baseFlowableProcessApi.getTaskService().addComment(taskId,processInstanceId,comment);
+                Task task  =  baseFlowableProcessApi.getTaskService().createTaskQuery().taskId(taskId).singleResult();
+                if(task.getOwner()!=null){
+                    Authentication.setAuthenticatedUserId(task.getOwner());
+                    baseFlowableProcessApi.getTaskService().addComment(taskId,processInstanceId,comment);
+                }else{
+                    Authentication.setAuthenticatedUserId(currentUserCode);
+                    baseFlowableProcessApi.getTaskService().addComment(taskId,processInstanceId,comment);
+                }
+
             }else{
                 return 0;
             }
@@ -58,7 +83,13 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
         try {
             Map<String,Object> var = JacksonUtils.json2obj(stringJson,HashedMap.class);
             if(taskId!=null){
-                baseFlowableProcessApi.getTaskService().complete(taskId,var);
+                Task task  =  baseFlowableProcessApi.getTaskService().createTaskQuery().taskId(taskId).singleResult();
+                if(task.getOwner()!=null){
+                    baseFlowableProcessApi.getTaskService().resolveTask(taskId);
+                    baseFlowableProcessApi.getTaskService().complete(taskId, var);
+                }else{
+                    baseFlowableProcessApi.getTaskService().complete(taskId, var);
+                }
             }else{
                 return 0;
             }
@@ -119,5 +150,232 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
         return target;
     }
 
+    @Override
+    public void tasksComplete4Mq(MqReceive mqReceive) {
+        loginUtils.adminLogin();
+        String taskId = mqReceive.getTaskId();
+        String mapJson = mqReceive.getMapJson();
+        Map<String, Object> startParam = JacksonUtils.json2obj(mapJson, Map.class);
 
+        try {
+                Task task = baseFlowableProcessApi.getTaskService().createTaskQuery().taskId(taskId).singleResult();
+                if (task.getOwner() != null) {
+                     Authentication.setAuthenticatedUserId(task.getOwner());
+                    baseFlowableProcessApi.getTaskService().addComment(taskId, mqReceive.getProcessInstId(), (String)startParam.get("message"));
+                    baseFlowableProcessApi.getTaskService().resolveTask(taskId);
+                    baseFlowableProcessApi.getTaskService().complete(taskId, startParam);
+                } else {
+                    Authentication.setAuthenticatedUserId((String)startParam.get("currentUserCode"));
+                    baseFlowableProcessApi.getTaskService().addComment(taskId, mqReceive.getProcessInstId(), (String)startParam.get("message"));
+                    baseFlowableProcessApi.getTaskService().complete(taskId, startParam);
+                }
+        } catch (Exception e) {
+            log.error(Exceptions.getStackTraceAsString(e));
+
+        }
+
+    }
+
+    /**
+     * 自由跳转
+     * @param taskId 当前任务id
+     * @param processInstanceId 实例id
+     * @param targetNodeId 目标节点
+     * @param inputUserId 下一办理人
+     */
+    @Override
+    public void freeFlow(String taskId, String processInstanceId, String targetNodeId, String inputUserId) {
+        Map<String,Object> tasksCompleteMap = Maps.newHashMap();
+        tasksCompleteMap.put("inputUserId",inputUserId);
+        baseFlowableProcessApi.getManagementServices().executeCommand(
+                new CommonJumpTaskCmd(taskId,
+                        processInstanceId,targetNodeId,tasksCompleteMap));
+    }
+
+
+    /**
+     * 手动创建多个任务
+     * @param assignees 多个办理人
+     * @param taskName 办理环节名称
+     * @param taskDefinitionKey 办理环节key
+     * @param processInstanceId 流程实例ID
+     * @param processDefinitionId 流程定义ID
+     * @return
+     */
+    @Override
+    public List<String> createTaskEntityImpls(List<String> assignees,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId){
+        if(assignees!=null){
+            List<String> taskIds = new ArrayList<String>();
+            for(String assignee : assignees){
+                taskIds.add(createTaskEntityImpl(assignee,taskName,taskDefinitionKey,processInstanceId,processDefinitionId));
+            }
+            return taskIds;
+        }
+        return null;
+
+    }
+    /**
+     * 手动创建任务
+     * @param assignee 办理人
+     * @param taskName 办理环节名称
+     * @param taskDefinitionKey 办理环节key
+     * @param processInstanceId 流程实例ID
+     * @param processDefinitionId 流程定义ID
+     * @return 任务ID
+     */
+    @Override
+    public String createTaskEntityImpl(String assignee,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId){
+
+        String taskId = "TASK"+CodeGenerator.systemUUID();
+
+        /*先创建执行实例*/
+        String executionId = createExecutionEntity(taskDefinitionKey,processInstanceId,processDefinitionId);
+
+        TaskEntityImpl task = (TaskEntityImpl) baseFlowableProcessApi.getTaskService().newTask();
+        task.setAssignee(assignee);
+        task.setName(taskName);
+        task.setTaskDefinitionKey(taskDefinitionKey);
+        task.setProcessInstanceId(processInstanceId);
+        task.setProcessDefinitionId(processDefinitionId);
+        task.setExecutionId(executionId);
+
+        task.setId(taskId);
+
+        baseFlowableProcessApi.getTaskService().saveTask(task);
+
+        /*创建运行节点*/
+        String activityInstanceEntityId = createActivityInstanceEntity(taskId,assignee,taskDefinitionKey,taskName,executionId,processInstanceId,processDefinitionId);
+
+        /*创建历史运行节点*/
+        createHistoricActivityInstanceEntity(activityInstanceEntityId,taskId,assignee,taskDefinitionKey,taskName,executionId,processInstanceId,processDefinitionId);
+
+        return taskId;
+    }
+
+    /**
+     * 手动创建
+     * @param activityId 办理环节key
+     * @param processInstanceId 流程实例ID
+     * @param processDefinitionId 流程定义ID
+     * @return 执行实例ID
+     */
+    public String createExecutionEntity(String activityId,String processInstanceId,String processDefinitionId) {
+
+        String executionId = "EXCU"+CodeGenerator.systemUUID();
+        ExecutionEntityImpl rootExecution = new ExecutionEntityImpl();
+        rootExecution.setProcessDefinitionId(processDefinitionId);
+        rootExecution.setProcessInstanceId(processInstanceId);
+        rootExecution.setParentId(processInstanceId);
+        rootExecution.setRootProcessInstanceId(processInstanceId);
+        rootExecution.setActivityId(activityId);
+        rootExecution.setActive(true);
+        rootExecution.setMultiInstanceRoot(false);
+        rootExecution.setSuspensionState(1);
+        rootExecution.setScope(false);
+
+        rootExecution.setId(executionId);
+
+        baseFlowableProcessApi.getManagementServices().executeCommand(
+                new NewExecutionEntityCmd(processInstanceId,rootExecution));
+
+        return executionId;
+    }
+
+    /**
+     *
+     * @param taskId 任务ID
+     * @param assignee 办理人
+     * @param activityId  办理环节key
+     * @param taskName 办理环节名称
+     * @param executionId 执行实例ID
+     * @param processInstanceId 流程实例ID
+     * @param processDefinitionId 流程定义ID
+     * @return 流程环节ID
+     */
+    public String createActivityInstanceEntity(String taskId,String assignee,String activityId,String taskName,String executionId,String processInstanceId,String processDefinitionId) {
+
+        String activityInstanceEntityId = "ACTI"+CodeGenerator.systemUUID();
+
+        ActivityInstanceEntityImpl activityInstanceEntity = new ActivityInstanceEntityImpl();
+        activityInstanceEntity.setProcessDefinitionId(processDefinitionId);
+        activityInstanceEntity.setProcessInstanceId(processInstanceId);
+        activityInstanceEntity.setExecutionId(executionId);
+        activityInstanceEntity.setActivityId(activityId);
+        activityInstanceEntity.setTaskId(taskId);
+        activityInstanceEntity.setActivityName(taskName);
+        activityInstanceEntity.setActivityType("userTask");
+        activityInstanceEntity.setAssignee(assignee);
+        activityInstanceEntity.setStartTime(DateUtil.getCurrent());
+
+        activityInstanceEntity.setId(activityInstanceEntityId);
+
+        baseFlowableProcessApi.getManagementServices().executeCommand(
+                new NewActivityInstanceEntityCmd(taskId,activityInstanceEntity));
+
+        return activityInstanceEntityId;
+
+    }
+
+    /**
+     *
+     * @param activityInstanceEntityId 流程环节ID
+     * @param taskId 任务ID
+     * @param assignee 办理人
+     * @param activityId  办理环节key
+     * @param taskName 办理环节名称
+     * @param executionId 执行实例ID
+     * @param processInstanceId 流程实例ID
+     * @param processDefinitionId 流程定义ID
+     * @return 流程环节ID
+     */
+    public String  createHistoricActivityInstanceEntity(String activityInstanceEntityId,String taskId,String assignee,String activityId,String taskName,String executionId,String processInstanceId,String processDefinitionId) {
+
+        HistoricActivityInstanceEntityImpl historicActivityInstanceEntity = new HistoricActivityInstanceEntityImpl();
+        historicActivityInstanceEntity.setProcessDefinitionId(processDefinitionId);
+        historicActivityInstanceEntity.setProcessInstanceId(processInstanceId);
+        historicActivityInstanceEntity.setExecutionId(executionId);
+        historicActivityInstanceEntity.setActivityId(activityId);
+        historicActivityInstanceEntity.setTaskId(taskId);
+        historicActivityInstanceEntity.setActivityName(taskName);
+        historicActivityInstanceEntity.setActivityType("userTask");
+        historicActivityInstanceEntity.setAssignee(assignee);
+        historicActivityInstanceEntity.setStartTime(DateUtil.getCurrent());
+
+        historicActivityInstanceEntity.setId(activityInstanceEntityId);
+
+        baseFlowableProcessApi.getManagementServices().executeCommand(
+                new NewHistoricActivityInstanceEntityCmd(taskId,historicActivityInstanceEntity));
+
+        return activityInstanceEntityId;
+
+    }
+
+    /**
+     * 完成当前节点，不再流程下一步
+     * @param task 当前任务
+     * @return 是否可以调用本方法
+     */
+    @Override
+    public boolean finshTask(Task task){
+        List<Execution> executions = baseFlowableProcessApi.getRuntimeService().createExecutionQuery().processInstanceId(task.getProcessInstanceId()).onlyChildExecutions().list();
+        if(executions.size()==1){
+            return false;
+        }else{
+            baseFlowableProcessApi.getManagementServices().executeCommand(
+                    new FinshTaskCmd(task.getId()));
+            return true;
+        }
+
+    }
+
+    /**
+     * 完成当前节点，不再流程下一步
+     * @param taskId 当前任务Id
+     * @return 是否可以调用本方法
+     */
+    @Override
+    public boolean finshTask(String  taskId){
+        Task task = baseFlowableProcessApi.getTaskService().createTaskQuery().taskId(taskId).singleResult();
+        return finshTask(task);
+    }
 }

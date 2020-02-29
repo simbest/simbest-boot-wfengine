@@ -4,14 +4,20 @@ package com.simbest.boot.wfengine.provide.processInstances.service.impl;/**
  */
 
 import cn.hutool.core.map.MapUtil;
-import com.simbest.boot.wfengine.api.BaseFlowableProcessApi;
+import com.google.common.collect.Maps;
 import com.simbest.boot.base.exception.Exceptions;
-import com.simbest.boot.wfengine.provide.processInstances.service.IProcessInstancesService;
 import com.simbest.boot.util.json.JacksonUtils;
+import com.simbest.boot.wfengine.api.BaseFlowableProcessApi;
+import com.simbest.boot.wfengine.provide.processInstances.service.IProcessInstancesService;
+import com.simbest.boot.wfengine.rabbitmq.model.MqReceive;
+import com.simbest.boot.wfengine.util.MapRemoveNullUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.lang3.StringUtils;
 import org.flowable.common.engine.impl.identity.Authentication;
 import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.engine.runtime.ProcessInstanceBuilder;
+import org.flowable.task.api.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -70,6 +76,7 @@ public class ProcessInstancesServiceImpl implements IProcessInstancesService {
         return result;
     }
 
+
     @Override
     public List<ProcessInstance> instancesQuery(Map<String, Object> map) {
         String processDefinitionKey = (String) map.get("processDefinitionKey");
@@ -94,5 +101,89 @@ public class ProcessInstancesServiceImpl implements IProcessInstancesService {
     @Override
     public ProcessInstance instancesGet(String processInstanceId) {
         return baseFlowableProcessApi.getRuntimeService().createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+    }
+
+    @Override
+    public void instancesStart4Mq(MqReceive mqReceive) {
+
+        String mapJson = mqReceive.getMapJson();
+        Map<String,Object> startParam  = JacksonUtils.json2obj(mapJson,Map.class);
+
+        String startProcessFlag = MapUtil.getStr( startParam,"startProcessFlag" );
+        String currentUserCode = MapUtil.getStr( startParam, "currentUserCode" );
+        String orgCode = MapUtil.getStr(startParam, "orgCode" );
+        String postId = MapUtil.getStr(startParam, "postId" );
+        String message = MapUtil.getStr( startParam, "message" );
+        String idValue = MapUtil.getStr( startParam, "idValue" );  //流程的定义ID
+        String nextUser = MapUtil.getStr( startParam, "nextUser" );
+        String nextUserOrgCode = MapUtil.getStr( startParam, "nextUserOrgCode" );
+        String nextUserPostId =  MapUtil.getStr( startParam, "nextUserPostId" );
+        String outcome = MapUtil.getStr( startParam, "outcome");
+        String businessKey = MapUtil.getStr( startParam, "businessKey" );
+        String messageNameValue = MapUtil.getStr( startParam, "messageNameValue" );
+
+        /**
+         * 启动流程
+         */
+        ProcessInstance pi = null;
+        Map<String, Object> variables = Maps.newConcurrentMap();
+        if ( !StringUtils.isEmpty( startProcessFlag ) ){
+            switch ( startProcessFlag ){
+                case "KEY":
+                    variables.put( "inputUserId", currentUserCode);
+                    variables.put( "businessKey", businessKey);
+                    variables.put( "orgCode", orgCode);
+                    variables.put( "postId", postId);
+                    variables.put("rabbitmq","rabbitmq");//字段很关键，决定了该流程实体通过什么方式和应用进行数据交互
+                    MapRemoveNullUtil.removeNullEntry(variables);
+//                    pi = baseFlowableProcessApi.getRuntimeService().startProcessInstanceByKeyAndTenantId(idValue,businessKey,variables,mqReceive.getTenantId());
+
+                    // 获取流程构造器
+                    ProcessInstanceBuilder processInstanceBuilder = baseFlowableProcessApi.getRuntimeService().createProcessInstanceBuilder();
+                    processInstanceBuilder.businessKey(businessKey);
+                    processInstanceBuilder.tenantId(mqReceive.getTenantId());
+                    processInstanceBuilder.processDefinitionKey(idValue);
+                    processInstanceBuilder.variables(variables);
+                    /*字段很关键，决定了该流程实体通过什么方式和应用进行数据交互*/
+                    processInstanceBuilder.name("rabbitmq");
+                    pi =  processInstanceBuilder.start();
+
+                    break;
+                case "MESSAGE":
+                    variables.put( "inputUserId", nextUser);
+                    variables.put( "businessKey", businessKey);
+                    variables.put("rabbitmq","rabbitmq");//字段很关键，决定了该流程实体通过什么方式和应用进行数据交互
+                    MapRemoveNullUtil.removeNullEntry(variables);
+//                    pi = baseFlowableProcessApi.getRuntimeService().startProcessInstanceByMessageAndTenantId(messageNameValue,variables,mqReceive.getTenantId());
+
+                    // 获取流程构造器
+                    ProcessInstanceBuilder processInstanceBuilderMessage = baseFlowableProcessApi.getRuntimeService().createProcessInstanceBuilder();
+                    processInstanceBuilderMessage.businessKey(businessKey);
+                    processInstanceBuilderMessage.tenantId(mqReceive.getTenantId());
+                    processInstanceBuilderMessage.variables(variables);
+                    processInstanceBuilderMessage.messageName(messageNameValue);
+                    /*字段很关键，决定了该流程实体通过什么方式和应用进行数据交互*/
+                    processInstanceBuilderMessage.name("rabbitmq");
+                    pi =  processInstanceBuilderMessage.start();
+
+                    break;
+                default:
+                    break;
+            }
+        }
+        /**
+         * 完成第一个节点
+         */
+        Task task = baseFlowableProcessApi.getTaskService().createTaskQuery()
+                .taskAssignee(currentUserCode)
+                .processInstanceId(pi.getProcessInstanceId())
+                .singleResult();
+        Authentication.setAuthenticatedUserId(currentUserCode);
+        baseFlowableProcessApi.getTaskService().addComment(task.getId(), pi.getProcessInstanceId(), message);
+        Map<String, Object> nextVar = new HashMap<String,Object>();
+        nextVar.put("inputUserId", nextUser);//指定下一审批人
+        nextVar.put("outcome", outcome);//指定下一审批环节
+        nextVar.put("message", message);//指定下一审批环节
+        baseFlowableProcessApi.getTaskService().complete(task.getId(),nextVar);
     }
 }

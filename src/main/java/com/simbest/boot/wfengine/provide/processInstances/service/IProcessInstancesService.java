@@ -1,5 +1,6 @@
 package com.simbest.boot.wfengine.provide.processInstances.service;
 
+import com.simbest.boot.wfengine.rabbitmq.model.MqReceive;
 import org.flowable.engine.runtime.ProcessInstance;
 
 import java.util.List;
@@ -23,4 +24,6 @@ public interface IProcessInstancesService {
     List<ProcessInstance> instancesQuery(Map<String,Object> map);
 
     ProcessInstance instancesGet(String processInstanceId);
+
+    void instancesStart4Mq(MqReceive mqReceive);
 }

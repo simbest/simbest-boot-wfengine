@@ -2,9 +2,9 @@ package com.simbest.boot.wfengine.process.api;
 
 import com.alibaba.druid.support.json.JSONUtils;
 import com.google.common.collect.Maps;
+import com.simbest.boot.util.DateUtil;
 import com.simbest.boot.wfengine.app.model.SysAppConfig;
 import com.simbest.boot.wfengine.app.service.ISysAppConfigService;
-import com.simbest.boot.util.DateUtil;
 import com.simbest.boot.wfengine.util.ConstantsUtils;
 import com.simbest.boot.wfengine.util.JsonResponse;
 import com.simbest.boot.wfengine.util.Md5Token;
@@ -49,6 +49,7 @@ public class CommonInterceptor extends HandlerInterceptorAdapter {
                              HttpServletResponse response, Object handler) throws Exception {
 
         boolean res = false;
+//        return true;
 
         String TIMESTAMP = request.getHeader("TIMESTAMP");
         String ACCESSTOKEN = request.getHeader("ACCESSTOKEN");
@@ -61,7 +62,6 @@ public class CommonInterceptor extends HandlerInterceptorAdapter {
             mapConfig = sysAppConfigServiceImpl.loadConfig(mapConfig);
         }
         SysAppConfig sysAppConfig = mapConfig.get(SOURCESYSTEMID);
-
         if(sysAppConfig==null){
             responseFalse(request, response, JsonResponse.CODE_NULL);
             res = false;

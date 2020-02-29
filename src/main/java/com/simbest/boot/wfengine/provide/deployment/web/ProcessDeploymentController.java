@@ -38,7 +38,7 @@ public class ProcessDeploymentController {
 
     @ApiOperation(value = "自动部署专用，tenantId必填")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "file", value = "部署文件", dataType = "File", paramType = "query"),
+            @ApiImplicitParam(name = "file2", value = "部署文件", dataType = "file", paramType = "formData"),
             @ApiImplicitParam(name = "filename", value = "部署文件名称", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "name", value = "DeploymentName", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "category", value = "分类", dataType = "String", paramType = "query"),

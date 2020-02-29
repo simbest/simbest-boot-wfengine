@@ -6,6 +6,7 @@ package com.simbest.boot.wfengine.provide.tasks.web;/**
 import com.google.common.collect.Maps;
 import com.simbest.boot.base.exception.GlobalExceptionRegister;
 import com.simbest.boot.base.web.response.JsonResponse;
+import com.simbest.boot.wfengine.provide.tasks.model.NewTaskInfo;
 import com.simbest.boot.wfengine.provide.tasks.model.ProcessTasksInfo;
 import com.simbest.boot.wfengine.provide.tasks.service.IProcessTasksService;
 import io.swagger.annotations.Api;
@@ -14,9 +15,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -109,5 +108,58 @@ public class ProcessTasksController {
     public JsonResponse tasksGet (String taskId) {
         ProcessTasksInfo task = processTasksService.tasksGet(taskId);
         return JsonResponse.success(task);
+    }
+
+    @ApiOperation(value = "自由流，撤销，终止,该接口会删除老的任务")
+    @ApiImplicitParams({@ApiImplicitParam(name = "taskId", value = "任务ID", dataType = "String", paramType = "query"),
+        @ApiImplicitParam(name = "processInstanceId", value = "实例id", dataType = "String", paramType = "query"),
+        @ApiImplicitParam(name = "targetNodeId", value = "目标节点", dataType = "String", paramType = "query"),
+        @ApiImplicitParam(name = "inputUserId", value = "下一办理人", dataType = "String", paramType = "query")
+    })
+    @PostMapping(value = {"/freeFlow","/sso/freeFlow","/api/freeFlow","/anonymous/freeFlow"})
+    public JsonResponse freeFlow (String taskId,String processInstanceId,String targetNodeId,String inputUserId) {
+        processTasksService.freeFlow(taskId,processInstanceId,targetNodeId,inputUserId);
+        return JsonResponse.success("操作成功！");
+    }
+
+    @ApiOperation(value = "手动创建任务（多人）")
+    @ApiImplicitParams({@ApiImplicitParam(name = "assignees", value = "办理人多人", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "taskName", value = "办理环节名称", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "taskDefinitionKey", value = "办理环节key", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "processInstanceId", value = "流程实例ID", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "processDefinitionId", value = "流程定义ID", dataType = "String", paramType = "query")
+    })
+    @PostMapping(value = {"/createTaskEntityImpls","/sso/createTaskEntityImpls","/api/createTaskEntityImpls","/anonymous/createTaskEntityImpls"})
+    public JsonResponse createTaskEntityImpls (@RequestBody NewTaskInfo newTaskInfo) {
+        processTasksService.createTaskEntityImpls(newTaskInfo.getAssignees(),
+                newTaskInfo.getTaskName(),newTaskInfo.getTaskDefinitionKey(),newTaskInfo.getProcessInstanceId(),newTaskInfo.getProcessDefinitionId());
+        return JsonResponse.success("操作成功！");
+    }
+
+    @ApiOperation(value = "手动创建任务（单人）")
+    @ApiImplicitParams({@ApiImplicitParam(name = "assignee", value = "办理人", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "taskName", value = "办理环节名称", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "taskDefinitionKey", value = "办理环节key", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "processInstanceId", value = "流程实例ID", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "processDefinitionId", value = "流程定义ID", dataType = "String", paramType = "query")
+    })
+    @PostMapping(value = {"/createTaskEntityImpl","/sso/createTaskEntityImpl","/api/createTaskEntityImpl","/anonymous/createTaskEntityImpl"})
+    public JsonResponse createTaskEntityImpl (String assignee,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId) {
+        processTasksService.createTaskEntityImpl(assignee,taskName,taskDefinitionKey,processInstanceId,processDefinitionId);
+        return JsonResponse.success("操作成功！");
+    }
+
+    @ApiOperation(value = "完成当前节点，不再流程下一步")
+    @ApiImplicitParams({@ApiImplicitParam(name = "taskId", value = "任务Id", dataType = "String", paramType = "query")
+    })
+    @PostMapping(value = {"/finshTask","/sso/finshTask","/api/finshTask","/anonymous/finshTask"})
+    public JsonResponse finshTask (String taskId) {
+        boolean result = processTasksService.finshTask(taskId);
+        if(result){
+            return JsonResponse.success("操作成功！");
+        }else{
+            return JsonResponse.fail("当前流程只有一个执行实例，请使用常规API办理流程");
+        }
+
     }
 }
