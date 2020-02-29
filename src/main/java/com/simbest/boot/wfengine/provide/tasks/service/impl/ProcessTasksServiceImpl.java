@@ -238,6 +238,7 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
 
         /*先创建执行实例*/
         String executionId = createExecutionEntity(taskDefinitionKey,processInstanceId,processDefinitionId);
+        baseFlowableProcessApi.getRuntimeService().setVariables(executionId,variables);
 
         TaskEntityImpl task = (TaskEntityImpl) baseFlowableProcessApi.getTaskService().newTask();
         task.setAssignee(assignee);
@@ -248,9 +249,7 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
         task.setExecutionId(executionId);
 
         task.setId(taskId);
-
         baseFlowableProcessApi.getTaskService().saveTask(task);
-        baseFlowableProcessApi.getTaskService().setVariables(taskId,variables);
 
         /*创建运行节点*/
         String activityInstanceEntityId = createActivityInstanceEntity(taskId,assignee,taskDefinitionKey,taskName,executionId,processInstanceId,processDefinitionId);
