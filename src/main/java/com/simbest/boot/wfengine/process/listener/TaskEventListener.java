@@ -84,7 +84,7 @@ public class TaskEventListener implements FlowableEventListener {
             }
         }
         String fromTaskId = MapUtil.getStr( variables,"fromTaskId" );
-        String tenantId = task.getTenantId();
+        String tenantId = StrUtil.isEmpty(task.getTenantId())?"anddoc":task.getTenantId();
         map.put("tenantId",task.getTenantId());
         map.put("taskId",task.getId());
         map.put("parentTaskId",task.getParentTaskId());

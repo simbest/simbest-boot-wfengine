@@ -27,23 +27,16 @@ public class FinshTaskCmd extends NeedsActiveTaskCmd<Boolean> {
 
     @Override
     protected Boolean execute(CommandContext commandContext, TaskEntity taskEntity) {
-
         ExecutionEntityManager executionEntityManager = CommandContextUtil.getExecutionEntityManager();
         ExecutionEntity rootExecution=  executionEntityManager.findById(taskEntity.getExecutionId());
-
         CommandContextUtil.getTaskService().deleteTask(taskEntity, true);
         CommandContextUtil.getHistoryManager().recordTaskEnd(taskEntity,rootExecution,"finsh",new Date());
-
         /**
          * 结束当前流程环节
          */
         CommandContextUtil.getActivityInstanceEntityManager().recordActivityEnd(rootExecution,"finsh");
         CommandContextUtil.getHistoryManager().recordActivityEnd(rootExecution,"finsh",new Date());
-
         executionEntityManager.delete(taskEntity.getExecutionId());
-
-
-
         return true;
     }
 }

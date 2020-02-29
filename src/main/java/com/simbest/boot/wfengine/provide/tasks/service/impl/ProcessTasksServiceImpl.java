@@ -4,6 +4,7 @@ package com.simbest.boot.wfengine.provide.tasks.service.impl;/**
  */
 
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Maps;
 import com.simbest.boot.base.exception.Exceptions;
 import com.simbest.boot.util.CodeGenerator;
@@ -233,11 +234,11 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
      */
     @Override
     public String createTaskEntityImpl(String assignee,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId,Map<String,Object> variables){
-
         String taskId = "TASK"+CodeGenerator.systemUUID();
-
         /*先创建执行实例*/
-        String executionId = createExecutionEntity(taskDefinitionKey,processInstanceId,processDefinitionId);
+        String tenantId = MapUtil.getStr( variables,"tenantId" );
+        String processDefinitionIdTmp = MapUtil.getStr( variables,"processDefinitionId" );
+        String executionId = createExecutionEntity(taskDefinitionKey,processInstanceId,processDefinitionId,tenantId,processDefinitionIdTmp);
         baseFlowableProcessApi.getRuntimeService().setVariables(executionId,variables);
 
         TaskEntityImpl task = (TaskEntityImpl) baseFlowableProcessApi.getTaskService().newTask();
@@ -247,16 +248,16 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
         task.setProcessInstanceId(processInstanceId);
         task.setProcessDefinitionId(processDefinitionId);
         task.setExecutionId(executionId);
+        task.setTenantId( tenantId );
 
         task.setId(taskId);
         baseFlowableProcessApi.getTaskService().saveTask(task);
+        log.warn( "任务运行实例【{}】>>>>流程定义ID为：{}>>>>>>临时流程定义ID为：{}",task.toString(),task.getProcessDefinitionId(),processDefinitionIdTmp);
 
         /*创建运行节点*/
-        String activityInstanceEntityId = createActivityInstanceEntity(taskId,assignee,taskDefinitionKey,taskName,executionId,processInstanceId,processDefinitionId);
-
+        String activityInstanceEntityId = createActivityInstanceEntity(taskId,assignee,taskDefinitionKey,taskName,executionId,processInstanceId,processDefinitionId,tenantId,processDefinitionIdTmp);
         /*创建历史运行节点*/
-        createHistoricActivityInstanceEntity(activityInstanceEntityId,taskId,assignee,taskDefinitionKey,taskName,executionId,processInstanceId,processDefinitionId);
-
+        createHistoricActivityInstanceEntity(activityInstanceEntityId,taskId,assignee,taskDefinitionKey,taskName,executionId,processInstanceId,processDefinitionId,processDefinitionIdTmp);
         return taskId;
     }
 
@@ -267,11 +268,10 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
      * @param processDefinitionId 流程定义ID
      * @return 执行实例ID
      */
-    public String createExecutionEntity(String activityId,String processInstanceId,String processDefinitionId) {
-
+    public String createExecutionEntity(String activityId,String processInstanceId,String processDefinitionId,String tenantId,String processDefinitionIdTmp) {
         String executionId = "EXCU"+CodeGenerator.systemUUID();
         ExecutionEntityImpl rootExecution = new ExecutionEntityImpl();
-        rootExecution.setProcessDefinitionId(processDefinitionId);
+        rootExecution.setProcessDefinitionId( StrUtil.isEmpty(processDefinitionId)?processDefinitionIdTmp:processDefinitionId );
         rootExecution.setProcessInstanceId(processInstanceId);
         rootExecution.setParentId(processInstanceId);
         rootExecution.setRootProcessInstanceId(processInstanceId);
@@ -280,12 +280,12 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
         rootExecution.setMultiInstanceRoot(false);
         rootExecution.setSuspensionState(1);
         rootExecution.setScope(false);
+        rootExecution.setTenantId( tenantId );
 
         rootExecution.setId(executionId);
 
         baseFlowableProcessApi.getManagementServices().executeCommand(
                 new NewExecutionEntityCmd(processInstanceId,rootExecution));
-
         return executionId;
     }
 
@@ -300,12 +300,11 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
      * @param processDefinitionId 流程定义ID
      * @return 流程环节ID
      */
-    public String createActivityInstanceEntity(String taskId,String assignee,String activityId,String taskName,String executionId,String processInstanceId,String processDefinitionId) {
-
+    public String createActivityInstanceEntity(String taskId,String assignee,String activityId,String taskName,String executionId,
+                                               String processInstanceId,String processDefinitionId,String tenantId,String processDefinitionIdTmp) {
         String activityInstanceEntityId = "ACTI"+CodeGenerator.systemUUID();
-
         ActivityInstanceEntityImpl activityInstanceEntity = new ActivityInstanceEntityImpl();
-        activityInstanceEntity.setProcessDefinitionId(processDefinitionId);
+        activityInstanceEntity.setProcessDefinitionId(StrUtil.isEmpty(processDefinitionId)?processDefinitionIdTmp:processDefinitionId);
         activityInstanceEntity.setProcessInstanceId(processInstanceId);
         activityInstanceEntity.setExecutionId(executionId);
         activityInstanceEntity.setActivityId(activityId);
@@ -314,12 +313,12 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
         activityInstanceEntity.setActivityType("userTask");
         activityInstanceEntity.setAssignee(assignee);
         activityInstanceEntity.setStartTime(DateUtil.getCurrent());
-
         activityInstanceEntity.setId(activityInstanceEntityId);
+        activityInstanceEntity.setTenantId( tenantId );
 
+        log.warn( "环节运行实例【{}】>>>>流程定义ID为：{}",activityInstanceEntity.toString(),activityInstanceEntity.getProcessDefinitionId());
         baseFlowableProcessApi.getManagementServices().executeCommand(
                 new NewActivityInstanceEntityCmd(taskId,activityInstanceEntity));
-
         return activityInstanceEntityId;
 
     }
@@ -336,10 +335,10 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
      * @param processDefinitionId 流程定义ID
      * @return 流程环节ID
      */
-    public String  createHistoricActivityInstanceEntity(String activityInstanceEntityId,String taskId,String assignee,String activityId,String taskName,String executionId,String processInstanceId,String processDefinitionId) {
-
+    public String  createHistoricActivityInstanceEntity(String activityInstanceEntityId,String taskId,String assignee,String activityId,String taskName,
+                                                        String executionId,String processInstanceId,String processDefinitionId,String processDefinitionIdTmp) {
         HistoricActivityInstanceEntityImpl historicActivityInstanceEntity = new HistoricActivityInstanceEntityImpl();
-        historicActivityInstanceEntity.setProcessDefinitionId(processDefinitionId);
+        historicActivityInstanceEntity.setProcessDefinitionId(StrUtil.isEmpty(processDefinitionId)?processDefinitionIdTmp:processDefinitionId);
         historicActivityInstanceEntity.setProcessInstanceId(processInstanceId);
         historicActivityInstanceEntity.setExecutionId(executionId);
         historicActivityInstanceEntity.setActivityId(activityId);
@@ -348,12 +347,10 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
         historicActivityInstanceEntity.setActivityType("userTask");
         historicActivityInstanceEntity.setAssignee(assignee);
         historicActivityInstanceEntity.setStartTime(DateUtil.getCurrent());
-
         historicActivityInstanceEntity.setId(activityInstanceEntityId);
 
         baseFlowableProcessApi.getManagementServices().executeCommand(
                 new NewHistoricActivityInstanceEntityCmd(taskId,historicActivityInstanceEntity));
-
         return activityInstanceEntityId;
 
     }
@@ -363,8 +360,7 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
         if(executions.size()==1){
             return false;
         }else{
-            baseFlowableProcessApi.getManagementServices().executeCommand(
-                    new FinshTaskCmd(task.getId()));
+            baseFlowableProcessApi.getManagementServices().executeCommand(new FinshTaskCmd(task.getId()));
             return true;
         }
 
@@ -380,70 +376,71 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
         TaskEntityImpl task = (TaskEntityImpl) baseFlowableProcessApi.getTaskService().createTaskQuery().taskId(taskId).singleResult();
         boolean result = false;
         /*手动回传数据给应用*/
-            Map<String ,Object> map=Maps.newHashMap();
-            // 获取流程环节上变量
-            Map<String,Object> variables = baseFlowableProcessApi.getTaskService().getVariables(task.getId());
-            String participantIdentity = MapUtil.getStr( variables,"participantIdentity" );
-            String participantIdentitys = MapUtil.getStr( variables,"participantIdentitys" );
-            String assignee = task.getAssignee();
-            String fromTaskId = MapUtil.getStr( variables,"fromTaskId" );
-            String tenantId = task.getTenantId();
-            map.put("tenantId",task.getTenantId());
-            map.put("taskId",task.getId());
-            map.put("parentTaskId",task.getParentTaskId());
-            map.put("taskDefinitionId",task.getTaskDefinitionId());
-            map.put("revision",task.getRevision());
-            map.put("executionId",task.getExecutionId());
-            map.put("processInstId",task.getProcessInstanceId());
-            map.put("taskDefinitionKey",task.getTaskDefinitionKey());
-            map.put("processDefinitionId",task.getProcessDefinitionId());
-            map.put("scopeId",task.getScopeId());
-            map.put("subScopeId",task.getSubScopeId());
-            map.put("scopeType",task.getScopeType());
-            map.put("name",task.getName());
-            map.put("description",task.getDescription());
-            map.put("owner",task.getOwner());
-            map.put("assignee",task.getAssignee());
-            map.put("delegationState",task.getDelegationState()!=null?task.getDelegationState().name():null);
-            map.put("priority",task.getPriority());
-            map.put("taskCreateTime",task.getCreateTime()!=null?DateUtil.getDate(task.getCreateTime(),DateUtil.timestampPattern1):null);
-            map.put("due",task.getDueDate()!=null?DateUtil.getDate(task.getDueDate(),DateUtil.timestampPattern1):null);
-            map.put("category",task.getCategory());
-            map.put("suspensionState",task.getSuspensionState());
-            map.put("formKey",task.getFormKey());
-            map.put("claimTime",task.getClaimTime()!=null?DateUtil.getDate(task.getClaimTime(),DateUtil.timestampPattern1):null);
-            map.put( "fromTaskId",fromTaskId );
+        Map<String ,Object> map=Maps.newHashMap();
+        // 获取流程环节上变量
+        Map<String,Object> variables = baseFlowableProcessApi.getTaskService().getVariables(task.getId());
+        //String participantIdentity = MapUtil.getStr( variables,"participantIdentity" );
+        //String participantIdentitys = MapUtil.getStr( variables,"participantIdentitys" );
+        String assignee = task.getAssignee();
+        String fromTaskId = MapUtil.getStr( variables,"fromTaskId" );
+        String tenantId = task.getTenantId();
+        map.put("tenantId",task.getTenantId());
+        map.put("taskId",task.getId());
+        map.put("parentTaskId",task.getParentTaskId());
+        map.put("taskDefinitionId",task.getTaskDefinitionId());
+        map.put("revision",task.getRevision());
+        map.put("executionId",task.getExecutionId());
+        map.put("processInstId",task.getProcessInstanceId());
+        map.put("taskDefinitionKey",task.getTaskDefinitionKey());
+        map.put("processDefinitionId",task.getProcessDefinitionId());
+        map.put("scopeId",task.getScopeId());
+        map.put("subScopeId",task.getSubScopeId());
+        map.put("scopeType",task.getScopeType());
+        map.put("name",task.getName());
+        map.put("description",task.getDescription());
+        map.put("owner",task.getOwner());
+        map.put("assignee",task.getAssignee());
+        map.put("delegationState",task.getDelegationState()!=null?task.getDelegationState().name():null);
+        map.put("priority",task.getPriority());
+        map.put("taskCreateTime",task.getCreateTime()!=null?DateUtil.getDate(task.getCreateTime(),DateUtil.timestampPattern1):null);
+        map.put("due",task.getDueDate()!=null?DateUtil.getDate(task.getDueDate(),DateUtil.timestampPattern1):null);
+        map.put("category",task.getCategory());
+        map.put("suspensionState",task.getSuspensionState());
+        map.put("formKey",task.getFormKey());
+        map.put("claimTime",task.getClaimTime()!=null?DateUtil.getDate(task.getClaimTime(),DateUtil.timestampPattern1):null);
+        map.put( "fromTaskId",fromTaskId );
 
-            ProcessInstance pi =baseFlowableProcessApi.getRuntimeService().createProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
-            if(pi.getName()==null){
-                /*发送数据之前再完成任务*/
-                result = finshTask(task);
-                if(result){
-                    callFlowableProcessApi.task_completed(tenantId,map);
-                }
-            }else if(pi.getName()!=null && "rabbitmq".equals(pi.getName())){
-                /*提交的人的意见还要传回应用本地，方便应用本地存储*/
-                map.put("message",(String)variables.get("message"));
-                MqSend mqSend = new MqSend();
-                mqSend.setBusinessKey(pi.getBusinessKey());
-                mqSend.setProcessDefKey(pi.getProcessDefinitionKey());
-                mqSend.setProcessInstId(pi.getProcessInstanceId());
-                mqSend.setTaskId(task.getId());
-                mqSend.setTaskDefinitionKey(task.getTaskDefinitionKey());
-                mqSend.setAction(ConstansAction.TASKSCOMPLETELISTENER);
-                mqSend.setTenantId(task.getTenantId());
-                mqSend.setIsSend(0);
-                mqSend.setIsSuccess(-1);//不需要回复成功
-                mqSend.setMapJson(JacksonUtils.obj2json(map));
-                /*发送数据之前再完成任务*/
-                result = finshTask(task);
-                if(result){
-                    //保存消息
-                    mqSendServiceImpl.insert(mqSend);
-                    //发送消息到rabbitmq
-                    mqSendServiceImpl.sendSms(mqSend);
-                }
+        ProcessInstance pi =baseFlowableProcessApi.getRuntimeService().createProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
+        if(pi.getName()==null){
+            /*回调业务应用之前再完成任务*/
+            result = finshTask(task);
+            log.warn( "回调业务应用之前再完成任务的状态：【{}】",result );
+            if(result){
+                callFlowableProcessApi.task_completed(tenantId,map);
             }
+        }else if(pi.getName()!=null && "rabbitmq".equals(pi.getName())){
+            /*提交的人的意见还要传回应用本地，方便应用本地存储*/
+            map.put("message",(String)variables.get("message"));
+            MqSend mqSend = new MqSend();
+            mqSend.setBusinessKey(pi.getBusinessKey());
+            mqSend.setProcessDefKey(pi.getProcessDefinitionKey());
+            mqSend.setProcessInstId(pi.getProcessInstanceId());
+            mqSend.setTaskId(task.getId());
+            mqSend.setTaskDefinitionKey(task.getTaskDefinitionKey());
+            mqSend.setAction(ConstansAction.TASKSCOMPLETELISTENER);
+            mqSend.setTenantId(task.getTenantId());
+            mqSend.setIsSend(0);
+            mqSend.setIsSuccess(-1);//不需要回复成功
+            mqSend.setMapJson(JacksonUtils.obj2json(map));
+            /*发送数据之前再完成任务*/
+            result = finshTask(task);
+            if(result){
+                //保存消息
+                mqSendServiceImpl.insert(mqSend);
+                //发送消息到rabbitmq
+                mqSendServiceImpl.sendSms(mqSend);
+            }
+        }
         return result;
     }
 }
