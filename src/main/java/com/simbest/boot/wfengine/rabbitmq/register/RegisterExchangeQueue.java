@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -71,15 +72,26 @@ public class RegisterExchangeQueue {
 
     @Bean
     public SimpleMessageListenerContainer mqMessageContainer(ConnectionFactory connectionFactory,ReceiveHandler receiveHandler) throws AmqpException, IOException {
-        String[] queueNames = {"queueischool_to_engine"};
-        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer(connectionFactory);
-        container.setQueueNames(queueNames);
-        container.setExposeListenerChannel(true);
+        List<RabbitQueueInfo> rabbitQueueInfos = rabbitQueueInfoServiceImpl.findAllNoPage();
+        List<String> rabbitQueueInfoStringList = new ArrayList<String>();
+        if(rabbitQueueInfos!=null && rabbitQueueInfos.size()>0){
+            for(RabbitQueueInfo rabbitQueueInfo : rabbitQueueInfos){
+                rabbitQueueInfoStringList.add(rabbitQueueInfo.getBeanName());
+            }
+            String[] queueNames = new String[rabbitQueueInfoStringList.size()];
+            rabbitQueueInfoStringList.toArray(queueNames);
+
+            SimpleMessageListenerContainer container = new SimpleMessageListenerContainer(connectionFactory);
+            container.setQueueNames(queueNames);
+            container.setExposeListenerChannel(true);
 //        container.setPrefetchCount(prefetchCount);//设置每个消费者获取的最大的消息数量
-        container.setConcurrentConsumers(1);//消费者个数
-        container.setAcknowledgeMode(AcknowledgeMode.MANUAL);//设置确认模式为手工确认
-        container.setMessageListener(receiveHandler);//监听处理类
-        return container;
+            container.setConcurrentConsumers(1);//消费者个数
+            container.setAcknowledgeMode(AcknowledgeMode.MANUAL);//设置确认模式为手工确认
+            container.setMessageListener(receiveHandler);//监听处理类
+            return container;
+        }
+        return null;
+
     }
 
 }
