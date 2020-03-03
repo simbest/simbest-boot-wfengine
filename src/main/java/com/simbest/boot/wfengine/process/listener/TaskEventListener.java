@@ -66,6 +66,7 @@ public class TaskEventListener implements FlowableEventListener {
         // 获取流程环节上变量
         Map<String,Object> variables = baseFlowableProcessApi.getTaskService().getVariables(task.getId());
         log.debug( "获取流程环节中的参数【{}】", JacksonUtils.obj2json( variables ) );
+        String businessKey = MapUtil.getStr( variables,"businessKey" );
         String participantIdentity = MapUtil.getStr( variables,"participantIdentity" );
         String participantIdentityStr = MapUtil.getStr( variables, "participantIdentitys" );
         participantIdentityStr = StrUtil.replace( participantIdentityStr,"&quot;", "\"");
@@ -110,6 +111,7 @@ public class TaskEventListener implements FlowableEventListener {
         map.put("formKey",task.getFormKey());
         map.put("claimTime",task.getClaimTime()!=null?DateUtil.getDate(task.getClaimTime(),DateUtil.timestampPattern1):null);
         map.put( "fromTaskId",fromTaskId );
+        map.put( "businessKey",businessKey );
 
         ProcessInstance pi =baseFlowableProcessApi.getRuntimeService().createProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
         switch (flowableEventType) {

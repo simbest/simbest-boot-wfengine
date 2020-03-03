@@ -56,9 +56,9 @@ public class ProcessEventListener implements FlowableEventListener {
         Map<String,Object> variables = historyInstance.getProcessVariables();
         //log.debug( "获取流程中的流程实例实体【{}】", historyInstance.toString() );
         log.debug( "获取流程中的参数【{}】", JacksonUtils.obj2json( variables ) );
-        String orgCode = MapUtil.getStr( variables,"orgCode" );
+       /* String orgCode = MapUtil.getStr( variables,"orgCode" );
         String postId = MapUtil.getStr( variables,"postId" );
-        String inputUserId = MapUtil.getStr( variables,"inputUserId" );
+        String inputUserId = MapUtil.getStr( variables,"inputUserId" );*/
         Map<String ,Object> map=Maps.newHashMap();
         String tenantId = historyInstance.getTenantId();
         map.put("tenantId",historyInstance.getTenantId());

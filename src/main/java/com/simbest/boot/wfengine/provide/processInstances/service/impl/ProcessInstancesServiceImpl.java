@@ -55,13 +55,14 @@ public class ProcessInstancesServiceImpl implements IProcessInstancesService {
             String processInstanceId = null;
             Map<String,Object> var = JacksonUtils.json2obj(stringJson,HashedMap.class);
             String inputUserId = MapUtil.getStr( var,"inputUserId" );
+            String businessKey = MapUtil.getStr( var,"businessKey" );
             //设置流程发起人
             Authentication.setAuthenticatedUserId(inputUserId);
             if(processDefinitionId!=null){
                 ProcessInstance pi =baseFlowableProcessApi.getRuntimeService().startProcessInstanceById(processDefinitionId,var);
                 processInstanceId = pi.getId();
             }else if(processDefinitionKey!=null){
-                ProcessInstance pi = baseFlowableProcessApi.getRuntimeService().startProcessInstanceByKeyAndTenantId(processDefinitionKey, var,tenantId);
+                ProcessInstance pi = baseFlowableProcessApi.getRuntimeService().startProcessInstanceByKeyAndTenantId(processDefinitionKey,businessKey,var,tenantId);
                 processInstanceId = pi.getId();
             }else if(message!=null){
                 ProcessInstance pi = baseFlowableProcessApi.getRuntimeService().startProcessInstanceByMessageAndTenantId(message,var,tenantId);
