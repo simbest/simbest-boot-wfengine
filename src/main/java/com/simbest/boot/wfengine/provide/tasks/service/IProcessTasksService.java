@@ -59,4 +59,21 @@ public interface IProcessTasksService {
      * @return 是否可以调用本方法
      */
     public boolean finshTask(String taskId);
+
+    /**
+     * 会签多实例加签
+     * @param activityId 活动节点ID
+     * @param processInstanceId 父实例ID
+     * @param vars 变量
+     */
+    public void addMultiInstanceExecution(String activityId,String processInstanceId,Map<String,Object> vars);
+
+    /**
+     * 会签多实例减签
+     * @param taskId 任务ID
+     * @param executionIsComplete 是否按完成处理（根据客户业务，建议填入false）
+     *                            跟踪源码可知，主要影响nrOfCompletedInstances，nrOfInstances，loopCounter等变量值
+     *                            同时，为了尽量减少业务和流程融合，建议业务判断放在业务中做，把最后的业务结果传递给flowable，不使用flowable做业务逻辑
+     */
+    public void deleteMultiInstanceExecution(String taskId,Boolean executionIsComplete);
 }

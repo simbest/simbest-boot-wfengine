@@ -443,4 +443,92 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
         }
         return result;
     }
+
+    /**
+     * 会签多实例加签
+     * @param activityId 活动节点ID
+     * @param processInstanceId 父实例ID
+     * @param vars 变量
+     */
+    @Override
+    public void addMultiInstanceExecution(String activityId,String processInstanceId,Map<String,Object> vars){
+        baseFlowableProcessApi.getRuntimeService().addMultiInstanceExecution(activityId,processInstanceId,vars);
+    }
+
+    /**
+     * 会签多实例减签
+     * @param taskId 任务Id
+     * @param executionIsComplete 是否按完成处理（根据客户业务，建议填入false）
+     *                            跟踪源码可知，主要影响nrOfCompletedInstances，nrOfInstances，loopCounter等变量值
+     *                            同时，为了尽量减少业务和流程融合，建议业务判断放在业务中做，把最后的业务结果传递给flowable，不使用flowable做业务逻辑
+     */
+    @Override
+    public void deleteMultiInstanceExecution(String taskId,Boolean executionIsComplete){
+        TaskEntityImpl task = (TaskEntityImpl) baseFlowableProcessApi.getTaskService().createTaskQuery().taskId(taskId).singleResult();
+
+        /*手动回传数据给应用*/
+        Map<String ,Object> map=Maps.newHashMap();
+        // 获取流程环节上变量
+        Map<String,Object> variables = baseFlowableProcessApi.getTaskService().getVariables(task.getId());
+        //String participantIdentity = MapUtil.getStr( variables,"participantIdentity" );
+        //String participantIdentitys = MapUtil.getStr( variables,"participantIdentitys" );
+        String assignee = task.getAssignee();
+        String fromTaskId = MapUtil.getStr( variables,"fromTaskId" );
+        String tenantId = task.getTenantId();
+        map.put("tenantId",task.getTenantId());
+        map.put("taskId",task.getId());
+        map.put("parentTaskId",task.getParentTaskId());
+        map.put("taskDefinitionId",task.getTaskDefinitionId());
+        map.put("revision",task.getRevision());
+        map.put("executionId",task.getExecutionId());
+        map.put("processInstId",task.getProcessInstanceId());
+        map.put("taskDefinitionKey",task.getTaskDefinitionKey());
+        map.put("processDefinitionId",task.getProcessDefinitionId());
+        map.put("scopeId",task.getScopeId());
+        map.put("subScopeId",task.getSubScopeId());
+        map.put("scopeType",task.getScopeType());
+        map.put("name",task.getName());
+        map.put("description",task.getDescription());
+        map.put("owner",task.getOwner());
+        map.put("assignee",task.getAssignee());
+        map.put("delegationState",task.getDelegationState()!=null?task.getDelegationState().name():null);
+        map.put("priority",task.getPriority());
+        map.put("taskCreateTime",task.getCreateTime()!=null?DateUtil.getDate(task.getCreateTime(),DateUtil.timestampPattern1):null);
+        map.put("due",task.getDueDate()!=null?DateUtil.getDate(task.getDueDate(),DateUtil.timestampPattern1):null);
+        map.put("category",task.getCategory());
+        map.put("suspensionState",task.getSuspensionState());
+        map.put("formKey",task.getFormKey());
+        map.put("claimTime",task.getClaimTime()!=null?DateUtil.getDate(task.getClaimTime(),DateUtil.timestampPattern1):null);
+        map.put( "fromTaskId",fromTaskId );
+
+        ProcessInstance pi =baseFlowableProcessApi.getRuntimeService().createProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
+        if(pi.getName()==null){
+            baseFlowableProcessApi.getRuntimeService().deleteMultiInstanceExecution(task.getExecutionId(),executionIsComplete);
+            /*执行减签成功后再发送组装的数据*/
+            callFlowableProcessApi.task_completed(tenantId,map);
+        }else if(pi.getName()!=null && "rabbitmq".equals(pi.getName())){
+            /*提交的人的意见还要传回应用本地，方便应用本地存储*/
+            map.put("message",(String)variables.get("message"));
+            MqSend mqSend = new MqSend();
+            mqSend.setBusinessKey(pi.getBusinessKey());
+            mqSend.setProcessDefKey(pi.getProcessDefinitionKey());
+            mqSend.setProcessInstId(pi.getProcessInstanceId());
+            mqSend.setTaskId(task.getId());
+            mqSend.setTaskDefinitionKey(task.getTaskDefinitionKey());
+            mqSend.setAction(ConstansAction.TASKSCOMPLETELISTENER);
+            mqSend.setTenantId(task.getTenantId());
+            mqSend.setIsSend(0);
+            mqSend.setIsSuccess(-1);//不需要回复成功
+            mqSend.setMapJson(JacksonUtils.obj2json(map));
+
+            baseFlowableProcessApi.getRuntimeService().deleteMultiInstanceExecution(task.getExecutionId(),executionIsComplete);
+            /*执行减签成功后再发送组装的数据*/
+            //保存消息
+            mqSendServiceImpl.insert(mqSend);
+            //发送消息到rabbitmq
+            mqSendServiceImpl.sendSms(mqSend);
+        }
+
+
+    }
 }
