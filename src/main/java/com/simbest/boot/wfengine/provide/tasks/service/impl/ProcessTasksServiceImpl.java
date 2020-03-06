@@ -372,7 +372,9 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
     }
 
     private boolean finshTask(Task task) {
+        log.warn( "1.查询执行实例时，task为：【{}】",JacksonUtils.obj2json(task) );
         List<Execution> executions = baseFlowableProcessApi.getRuntimeService().createExecutionQuery().processInstanceId(task.getProcessInstanceId()).onlyChildExecutions().list();
+        log.warn( "2.查询执行实例为：【{}】,总数为【{}】",JacksonUtils.obj2json(executions),executions.size() );
         if (executions.size() == 1) {
             return false;
         } else {
