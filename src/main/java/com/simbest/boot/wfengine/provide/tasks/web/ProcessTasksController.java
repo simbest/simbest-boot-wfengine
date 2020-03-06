@@ -6,6 +6,7 @@ package com.simbest.boot.wfengine.provide.tasks.web;/**
 import com.google.common.collect.Maps;
 import com.simbest.boot.base.exception.GlobalExceptionRegister;
 import com.simbest.boot.base.web.response.JsonResponse;
+import com.simbest.boot.util.json.JacksonUtils;
 import com.simbest.boot.wfengine.provide.tasks.model.NewTaskInfo;
 import com.simbest.boot.wfengine.provide.tasks.model.ProcessTasksInfo;
 import com.simbest.boot.wfengine.provide.tasks.service.IProcessTasksService;
@@ -14,8 +15,12 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
@@ -171,6 +176,28 @@ public class ProcessTasksController {
         }else{
             return JsonResponse.fail("当前流程只有一个执行实例，请使用常规API办理流程");
         }
+
+    }
+
+    @ApiOperation(value = "多实例加签")
+    @ApiImplicitParams({@ApiImplicitParam(name = "taskId", value = "任务Id", dataType = "String", paramType = "query")
+    })
+    @PostMapping(value = {"/addMultiInstanceExecution","/sso/addMultiInstanceExecution","/api/addMultiInstanceExecution","/anonymous/addMultiInstanceExecution"})
+    public JsonResponse addMultiInstanceExecution (String activityId,String processInstanceId,String stringJson) {
+        Map<String,Object> vars = JacksonUtils.json2obj(stringJson,HashedMap.class);
+        vars.put("duo_shi_li_jia_qian",processInstanceId);
+        processTasksService.addMultiInstanceExecution(activityId,processInstanceId,vars);
+        return JsonResponse.success("操作成功！");
+    }
+
+    @ApiOperation(value = "多实例减签")
+    @ApiImplicitParams({@ApiImplicitParam(name = "taskId", value = "任务Id", dataType = "String", paramType = "query")
+    })
+    @PostMapping(value = {"/deleteMultiInstanceExecution","/sso/deleteMultiInstanceExecution","/api/deleteMultiInstanceExecution","/anonymous/deleteMultiInstanceExecution"})
+    public JsonResponse deleteMultiInstanceExecution (String taskId) {
+
+        processTasksService.deleteMultiInstanceExecution(taskId,false);
+        return JsonResponse.success("操作成功！");
 
     }
 }
