@@ -195,9 +195,6 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
      */
     @Override
     public void freeFlow(String taskId, String processInstanceId, String targetNodeId, String inputUserId) {
-
-
-
         /*手动回传数据给应用*/
         Map<String, Object> map = Maps.newHashMap();
         String tenantId = "";
@@ -216,7 +213,6 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
 
         /*发送数据*/
         sendData(map, tenantId, mqSend, isRabbit);
-
     }
 
 
@@ -394,7 +390,6 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
      */
     @Override
     public boolean finshTask(String taskId) {
-
         /*手动回传数据给应用*/
         Map<String, Object> map = Maps.newHashMap();
         String tenantId = "";
@@ -403,10 +398,8 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
         ProcessInstance pi = null;
         MqSend mqSend = new MqSend();
         Boolean isRabbit = packData(taskId, tenantId, map, task, variables, pi, mqSend);
-
         boolean result = false;
         result = finshTask(task);
-
         if (result) {
             /*发送数据*/
             sendData(map, tenantId, mqSend, isRabbit);
@@ -436,8 +429,6 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
      */
     @Override
     public void deleteMultiInstanceExecution(String taskId, Boolean executionIsComplete) {
-
-
         /*手动回传数据给应用*/
         Map<String, Object> map = Maps.newHashMap();
         String tenantId = "";
@@ -446,10 +437,8 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
         ProcessInstance pi = null;
         MqSend mqSend = new MqSend();
         Boolean isRabbit = packData(taskId, tenantId, map, task, variables, pi, mqSend);
-
         /*执行本方法业务逻辑*/
         baseFlowableProcessApi.getRuntimeService().deleteMultiInstanceExecution(task.getExecutionId(), executionIsComplete);
-
         /*发送数据*/
         sendData(map, tenantId, mqSend, isRabbit);
     }
@@ -469,14 +458,12 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
     /*组装数据*/
     private Boolean packData(String taskId, String tenantId, Map<String, Object> map, TaskEntityImpl task, Map<String, Object> variables, ProcessInstance pi, MqSend mqSend) {
         task = (TaskEntityImpl) baseFlowableProcessApi.getTaskService().createTaskQuery().taskId(taskId).singleResult();
-
         // 获取流程环节上变量
         variables = baseFlowableProcessApi.getTaskService().getVariables(task.getId());
         //String participantIdentity = MapUtil.getStr( variables,"participantIdentity" );
         //String participantIdentitys = MapUtil.getStr( variables,"participantIdentitys" );
         String assignee = task.getAssignee();
         String fromTaskId = MapUtil.getStr(variables, "fromTaskId");
-
         map.put("tenantId", task.getTenantId());
         map.put("taskId", task.getId());
         map.put("parentTaskId", task.getParentTaskId());
@@ -504,8 +491,6 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
         map.put("fromTaskId", fromTaskId);
 
         pi = baseFlowableProcessApi.getRuntimeService().createProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
-
-
         /*提交的人的意见还要传回应用本地，方便应用本地存储*/
         map.put("message", (String) variables.get("message"));
         mqSend.setBusinessKey(pi.getBusinessKey());
