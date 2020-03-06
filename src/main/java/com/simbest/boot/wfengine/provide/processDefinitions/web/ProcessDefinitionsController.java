@@ -79,7 +79,7 @@ public class ProcessDefinitionsController {
      */
     @GetMapping(value = {"/getDiagramhttp","/sso/getDiagramhttp","/api/getDiagramhttp","/anonymous/getDiagramhttp"})
     public String getDiagramhttp (String processDefinitionId,String processInstanceId,HttpServletResponse response) throws Exception {
-        InputStream in = processDefinitionsService.getDiagram(null, processInstanceId);
+        InputStream in = processDefinitionsService.getDiagram(processDefinitionId, processInstanceId);
         //3：从response对象获取输出流
         OutputStream out = response.getOutputStream();
         //4：将输入流中的数据读取出来，写到输出流中

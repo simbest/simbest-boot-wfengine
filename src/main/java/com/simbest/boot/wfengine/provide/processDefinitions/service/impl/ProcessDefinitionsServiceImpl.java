@@ -80,7 +80,7 @@ public class ProcessDefinitionsServiceImpl implements IProcessDefinitionsService
     public InputStream getDiagram(String processDefinitionId, String processInstanceId) {
         ProcessDefinition pd = null;
         if(processDefinitionId!=null){
-            pd = baseFlowableProcessApi.getRepositoryService().createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
+            pd = baseFlowableProcessApi.getRepositoryService().createProcessDefinitionQuery().processDefinitionId(processDefinitionId).latestVersion().singleResult();
             return baseFlowableProcessApi.getRepositoryService().getResourceAsStream(pd.getDeploymentId(), pd.getDiagramResourceName());
         }
         if(processInstanceId!=null){
