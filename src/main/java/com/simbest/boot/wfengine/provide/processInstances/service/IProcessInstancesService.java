@@ -26,4 +26,6 @@ public interface IProcessInstancesService {
     ProcessInstance instancesGet(String processInstanceId);
 
     void instancesStart4Mq(MqReceive mqReceive);
+
+    void deleteProcessInstance(String processInstanceId);
 }

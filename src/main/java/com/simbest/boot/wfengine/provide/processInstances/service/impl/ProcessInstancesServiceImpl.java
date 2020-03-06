@@ -187,4 +187,24 @@ public class ProcessInstancesServiceImpl implements IProcessInstancesService {
         nextVar.put("message", message);//指定下一审批环节
         baseFlowableProcessApi.getTaskService().complete(task.getId(),nextVar);
     }
+
+    /**
+     * 删除流程实例
+     * @param processInstanceId
+     */
+    @Override
+    public void deleteProcessInstance(String processInstanceId) {
+        ProcessInstance pi = baseFlowableProcessApi.getRuntimeService().createProcessInstanceQuery()
+                .processInstanceId(processInstanceId)
+                .singleResult();
+
+        if(pi==null){
+        //该流程实例已经完成了
+            baseFlowableProcessApi.getHistoryService().deleteHistoricProcessInstance(processInstanceId);
+        }else{
+            //该流程实例未结束的
+            baseFlowableProcessApi.getRuntimeService().deleteProcessInstance(processInstanceId,"");
+            baseFlowableProcessApi.getHistoryService().deleteHistoricProcessInstance(processInstanceId);//(顺序不能换)
+        }
+    }
 }

@@ -84,11 +84,20 @@ public class ProcessInstancesController {
     }
 
     @ApiOperation(value = "获得一个实例")
-    @ApiImplicitParams({@ApiImplicitParam(name = "processInstancesService", value = "实例ID", dataType = "String", paramType = "query")
+    @ApiImplicitParams({@ApiImplicitParam(name = "processInstanceId", value = "实例ID", dataType = "String", paramType = "query")
     })
     @PostMapping(value = {"/instancesGet","/sso/instancesGet","/api/instancesGet","/anonymous/instancesGet"})
     public JsonResponse instancesGet (String processInstanceId) {
         ProcessInstance processInstance = processInstancesService.instancesGet(processInstanceId);
         return JsonResponse.success(processInstance);
+    }
+
+    @ApiOperation(value = "删除流程")
+    @ApiImplicitParams({@ApiImplicitParam(name = "processInstanceId", value = "实例ID", dataType = "String", paramType = "query")
+    })
+    @PostMapping(value = {"/deleteProcessInstance","/sso/deleteProcessInstance","/api/deleteProcessInstance","/anonymous/deleteProcessInstance"})
+    public JsonResponse deleteProcessInstance (String processInstanceId) {
+        processInstancesService.deleteProcessInstance(processInstanceId);
+        return JsonResponse.success("删除成功！");
     }
 }
