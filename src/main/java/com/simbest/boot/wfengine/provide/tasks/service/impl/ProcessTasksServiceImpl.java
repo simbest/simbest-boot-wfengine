@@ -200,10 +200,10 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
 
         /*手动回传数据给应用*/
         Map<String, Object> map = Maps.newHashMap();
-        String tenantId = new String();
         MqSend mqSend = new MqSend();
-        Boolean isRabbit = packData(taskId, tenantId, map,  mqSend);
+        Boolean isRabbit = packData(taskId, map,  mqSend);
 
+        TaskEntityImpl task = (TaskEntityImpl) baseFlowableProcessApi.getTaskService().createTaskQuery().taskId(taskId).singleResult();
         /*本方法业务逻辑*/
         Map<String, Object> tasksCompleteMap = Maps.newHashMap();
         tasksCompleteMap.put("inputUserId", inputUserId);
@@ -212,7 +212,7 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
                         processInstanceId, targetNodeId, tasksCompleteMap));
 
         /*发送数据*/
-        sendData(map, tenantId, mqSend, isRabbit);
+        sendData(map, task.getTenantId(), mqSend, isRabbit);
 
     }
 
@@ -394,9 +394,8 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
 
         /*手动回传数据给应用*/
         Map<String, Object> map = Maps.newHashMap();
-        String tenantId = new String();
         MqSend mqSend = new MqSend();
-        Boolean isRabbit = packData(taskId, tenantId, map, mqSend);
+        Boolean isRabbit = packData(taskId, map, mqSend);
 
         TaskEntityImpl task = (TaskEntityImpl) baseFlowableProcessApi.getTaskService().createTaskQuery().taskId(taskId).singleResult();
         boolean result = false;
@@ -404,7 +403,7 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
 
         if (result) {
             /*发送数据*/
-            sendData(map, tenantId, mqSend, isRabbit);
+            sendData(map, task.getTenantId(), mqSend, isRabbit);
         }
         return result;
     }
@@ -435,20 +434,19 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
 
         /*手动回传数据给应用*/
         Map<String, Object> map = Maps.newHashMap();
-        String tenantId = new String();
         MqSend mqSend = new MqSend();
-        Boolean isRabbit = packData(taskId, tenantId, map , mqSend);
+        Boolean isRabbit = packData(taskId, map , mqSend);
 
         TaskEntityImpl task = (TaskEntityImpl) baseFlowableProcessApi.getTaskService().createTaskQuery().taskId(taskId).singleResult();
         /*执行本方法业务逻辑*/
         baseFlowableProcessApi.getRuntimeService().deleteMultiInstanceExecution(task.getExecutionId(), executionIsComplete);
 
         /*发送数据*/
-        sendData(map, tenantId, mqSend, isRabbit);
+        sendData(map, task.getTenantId(), mqSend, isRabbit);
     }
 
     /*发送数据*/
-    private void sendData(Map<String, Object> map, String tenantId, MqSend mqSend, Boolean isRabbit) {
+    public void sendData(Map<String, Object> map, String tenantId, MqSend mqSend, Boolean isRabbit) {
         if (!isRabbit) {
             callFlowableProcessApi.task_completed(tenantId, map);
         } else if (isRabbit) {
@@ -460,7 +458,7 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
     }
 
     /*组装数据*/
-    private Boolean packData(String taskId, String tenantId, Map<String, Object> map, MqSend mqSend) {
+    public Boolean packData(String taskId, Map<String, Object> map, MqSend mqSend) {
         TaskEntityImpl task = (TaskEntityImpl) baseFlowableProcessApi.getTaskService().createTaskQuery().taskId(taskId).singleResult();
 
         // 获取流程环节上变量
@@ -469,7 +467,7 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
         //String participantIdentitys = MapUtil.getStr( variables,"participantIdentitys" );
         String assignee = task.getAssignee();
         String fromTaskId = MapUtil.getStr(variables, "fromTaskId");
-        tenantId = task.getTenantId();
+
         map.put("tenantId", task.getTenantId());
         map.put("taskId", task.getId());
         map.put("parentTaskId", task.getParentTaskId());
