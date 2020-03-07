@@ -462,15 +462,13 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
     /*组装数据*/
     private Boolean packData(String taskId, String tenantId, Map<String, Object> map, MqSend mqSend) {
         TaskEntityImpl task = (TaskEntityImpl) baseFlowableProcessApi.getTaskService().createTaskQuery().taskId(taskId).singleResult();
-
+        log.warn( "TaskEntityImpl为：【{}】",JacksonUtils.obj2json( task ) );
         // 获取流程环节上变量
         Map<String, Object> variables = baseFlowableProcessApi.getTaskService().getVariables(task.getId());
-        //String participantIdentity = MapUtil.getStr( variables,"participantIdentity" );
-        //String participantIdentitys = MapUtil.getStr( variables,"participantIdentitys" );
-        String assignee = task.getAssignee();
-        String fromTaskId = MapUtil.getStr(variables, "fromTaskId");
         tenantId = task.getTenantId();
-        map.put("tenantId", task.getTenantId());
+        log.warn( "租户ID为：【{}】",tenantId );
+        String fromTaskId = MapUtil.getStr(variables, "fromTaskId");
+        map.put("tenantId", tenantId);
         map.put("taskId", task.getId());
         map.put("parentTaskId", task.getParentTaskId());
         map.put("taskDefinitionId", task.getTaskDefinitionId());
