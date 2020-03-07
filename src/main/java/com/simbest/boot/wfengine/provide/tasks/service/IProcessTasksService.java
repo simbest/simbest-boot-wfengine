@@ -39,7 +39,7 @@ public interface IProcessTasksService {
      * @param processDefinitionId 流程定义ID
      * @return
      */
-    public List<String> createTaskEntityImpls(List<String> assignees,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId,Map<String,Object> variables);
+    public List<String> createTaskEntityImpls(List<String> assignees,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId,String tenantId,Map<String,Object> variables);
 
     /**
      * 手动创建任务
@@ -50,7 +50,7 @@ public interface IProcessTasksService {
      * @param processDefinitionId 流程定义ID
      * @return 任务ID
      */
-    public String createTaskEntityImpl(String assignee,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId,Map<String,Object> variables);
+    public String createTaskEntityImpl(String assignee,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId,String tenantId,Map<String,Object> variables);
 
 
     /**

@@ -24,5 +24,6 @@ public class NewTaskInfo {
     private String taskDefinitionKey;
     private String processInstanceId;
     private String processDefinitionId;
+    private String tenantId;
     private Map<String,Object> variables;
 }
