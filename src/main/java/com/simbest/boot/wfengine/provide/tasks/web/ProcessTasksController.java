@@ -133,6 +133,7 @@ public class ProcessTasksController {
             @ApiImplicitParam(name = "taskDefinitionKey", value = "办理环节key", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "processInstanceId", value = "流程实例ID", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "processDefinitionId", value = "流程定义ID", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "tenantId", value = "租户ID", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "variables", value = "任务参数", dataType = "Map", paramType = "query")
     })
     @PostMapping(value = {"/createTaskEntityImpls","/sso/createTaskEntityImpls","/api/createTaskEntityImpls","/anonymous/createTaskEntityImpls"})
@@ -142,6 +143,7 @@ public class ProcessTasksController {
                 newTaskInfo.getTaskDefinitionKey(),
                 newTaskInfo.getProcessInstanceId(),
                 newTaskInfo.getProcessDefinitionId(),
+                newTaskInfo.getTenantId(),
                 newTaskInfo.getVariables());
         return JsonResponse.success("操作成功！");
     }
@@ -152,6 +154,7 @@ public class ProcessTasksController {
             @ApiImplicitParam(name = "taskDefinitionKey", value = "办理环节key", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "processInstanceId", value = "流程实例ID", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "processDefinitionId", value = "流程定义ID", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "tenantId", value = "租户ID", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "variables", value = "任务参数", dataType = "Map", paramType = "query")
     })
     @PostMapping(value = {"/createTaskEntityImpl","/sso/createTaskEntityImpl","/api/createTaskEntityImpl","/anonymous/createTaskEntityImpl"})
@@ -161,6 +164,7 @@ public class ProcessTasksController {
                 newTaskInfo.getTaskDefinitionKey(),
                 newTaskInfo.getProcessInstanceId(),
                 newTaskInfo.getProcessDefinitionId(),
+                newTaskInfo.getTenantId(),
                 newTaskInfo.getVariables());
         return JsonResponse.success("操作成功！");
     }
