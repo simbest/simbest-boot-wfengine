@@ -100,4 +100,20 @@ public class ProcessInstancesController {
         processInstancesService.deleteProcessInstance(processInstanceId);
         return JsonResponse.success("删除成功！");
     }
+
+    @ApiOperation(value = "升级指定流程的流程定义,流程实例ID如果有多个，逗号分割，流程定义ID和版本号填一个就可以，如果都填写，以流程定义ID为准")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "processInstanceIds", value = "实例ID（如果是多个，逗号分割）", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "processDefinitionId", value = "流程定义ID", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "version", value = "版本号", dataType = "Integer", paramType = "query")
+    })
+    @PostMapping(value = {"/upgradeProcessInstanceVersion","/sso/upgradeProcessInstanceVersion","/api/upgradeProcessInstanceVersion","/anonymous/upgradeProcessInstanceVersion"})
+    public JsonResponse upgradeProcessInstanceVersion (String processInstanceIds,String processDefinitionId,Integer version) {
+        if(processDefinitionId == null && version == null){
+            return JsonResponse.fail("流程定义ID和版本号至少要填写一个！");
+        }else{
+            processInstancesService.upgradeProcessInstanceVersion(processInstanceIds,processDefinitionId,version);
+            return JsonResponse.success("升级成功！");
+        }
+    }
 }

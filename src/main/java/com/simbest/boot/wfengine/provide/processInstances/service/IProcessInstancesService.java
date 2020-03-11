@@ -28,4 +28,6 @@ public interface IProcessInstancesService {
     void instancesStart4Mq(MqReceive mqReceive);
 
     void deleteProcessInstance(String processInstanceId);
+
+    void upgradeProcessInstanceVersion(String processInstanceIds, String processDefinitionId, Integer version);
 }

@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.common.engine.impl.identity.Authentication;
+import org.flowable.engine.impl.cmd.SetProcessDefinitionVersionCmd;
+import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.engine.runtime.ProcessInstanceBuilder;
 import org.flowable.task.api.Task;
@@ -205,6 +207,33 @@ public class ProcessInstancesServiceImpl implements IProcessInstancesService {
             //该流程实例未结束的
             baseFlowableProcessApi.getRuntimeService().deleteProcessInstance(processInstanceId,"");
             baseFlowableProcessApi.getHistoryService().deleteHistoricProcessInstance(processInstanceId);//(顺序不能换)
+        }
+    }
+
+    /**
+     * 升级流程实例
+     * @param processInstanceIds
+     * @param version
+     */
+    @Override
+    public void upgradeProcessInstanceVersion(String processInstanceIds, String processDefinitionId,Integer version) {
+        Integer versionDef = 0;
+        if(processDefinitionId!=null){
+            ProcessDefinition processDefinition = baseFlowableProcessApi.getRepositoryService().createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
+            versionDef = processDefinition.getVersion();
+        }
+        String[] processInstanceIdArray = processInstanceIds.split(",");
+        for(String processInstanceId : processInstanceIdArray){
+            ProcessInstance processInstance = baseFlowableProcessApi.getRuntimeService().createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+            if(processInstance!=null){
+                if(versionDef == 0 && version!=null){
+                    ProcessDefinition processDefinition = baseFlowableProcessApi.getRepositoryService().createProcessDefinitionQuery().processDefinitionKey(processInstance.getProcessDefinitionKey()).processDefinitionVersion(version).singleResult();
+                    versionDef = processDefinition.getVersion();
+                }
+                if(versionDef>0) {
+                    baseFlowableProcessApi.getManagementServices().executeCommand(new SetProcessDefinitionVersionCmd(processInstanceId, versionDef));
+                }
+            }
         }
     }
 }
