@@ -2,6 +2,7 @@ package com.simbest.boot.wfengine.provide.tasks.service;
 
 import com.simbest.boot.wfengine.provide.tasks.model.ProcessTasksInfo;
 import com.simbest.boot.wfengine.rabbitmq.model.MqReceive;
+import org.flowable.bpmn.model.SequenceFlow;
 
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ public interface IProcessTasksService {
 
     /**
      * 手动创建多个任务
+     * @param sourceTaskDefinitionKey 上一个任务办理环节
      * @param assignees 多个办理人
      * @param taskName 办理环节名称
      * @param taskDefinitionKey 办理环节key
@@ -39,10 +41,11 @@ public interface IProcessTasksService {
      * @param processDefinitionId 流程定义ID
      * @return
      */
-    public List<String> createTaskEntityImpls(List<String> assignees,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId,String tenantId,Map<String,Object> variables);
+    public List<String> createTaskEntityImpls(String sourceTaskDefinitionKey,List<String> assignees,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId,String tenantId,Map<String,Object> variables);
 
     /**
      * 手动创建任务
+     * @param sourceTaskDefinitionKey 上一个任务办理环节
      * @param assignee 办理人
      * @param taskName 办理环节名称
      * @param taskDefinitionKey 办理环节key
@@ -50,7 +53,7 @@ public interface IProcessTasksService {
      * @param processDefinitionId 流程定义ID
      * @return 任务ID
      */
-    public String createTaskEntityImpl(String assignee,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId,String tenantId,Map<String,Object> variables);
+    public String createTaskEntityImpl(String sourceTaskDefinitionKey,String assignee,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId,String tenantId,Map<String,Object> variables);
 
 
     /**
@@ -76,4 +79,13 @@ public interface IProcessTasksService {
      *                            同时，为了尽量减少业务和流程融合，建议业务判断放在业务中做，把最后的业务结果传递给flowable，不使用flowable做业务逻辑
      */
     public void deleteMultiInstanceExecution(String taskId,Boolean executionIsComplete);
+
+    /**
+     * 获取两个环节之间的连线
+     * @param processInstanceId
+     * @param sourceRef
+     * @param targetRef
+     * @return
+     */
+    public SequenceFlow getSequenceFlow(String processInstanceId, String sourceRef, String targetRef);
 }

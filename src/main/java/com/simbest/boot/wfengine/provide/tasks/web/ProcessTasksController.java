@@ -128,7 +128,9 @@ public class ProcessTasksController {
     }
 
     @ApiOperation(value = "手动创建任务（多人）")
-    @ApiImplicitParams({@ApiImplicitParam(name = "assignees", value = "办理人多人", dataType = "String", paramType = "query"),
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "sourceTaskDefinitionKey", value = "上一个任务办理环节", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "assignees", value = "办理人多人", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "taskName", value = "办理环节名称", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "taskDefinitionKey", value = "办理环节key", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "processInstanceId", value = "流程实例ID", dataType = "String", paramType = "query"),
@@ -138,7 +140,8 @@ public class ProcessTasksController {
     })
     @PostMapping(value = {"/createTaskEntityImpls","/sso/createTaskEntityImpls","/api/createTaskEntityImpls","/anonymous/createTaskEntityImpls"})
     public JsonResponse createTaskEntityImpls (@RequestBody NewTaskInfo newTaskInfo) {
-        processTasksService.createTaskEntityImpls(newTaskInfo.getAssignees(),
+        processTasksService.createTaskEntityImpls(newTaskInfo.getSourceTaskDefinitionKey(),
+                newTaskInfo.getAssignees(),
                 newTaskInfo.getTaskName(),
                 newTaskInfo.getTaskDefinitionKey(),
                 newTaskInfo.getProcessInstanceId(),
@@ -149,7 +152,9 @@ public class ProcessTasksController {
     }
 
     @ApiOperation(value = "手动创建任务（单人）")
-    @ApiImplicitParams({@ApiImplicitParam(name = "assignee", value = "办理人", dataType = "String", paramType = "query"),
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "sourceTaskDefinitionKey", value = "上一个任务办理环节", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "assignee", value = "办理人", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "taskName", value = "办理环节名称", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "taskDefinitionKey", value = "办理环节key", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "processInstanceId", value = "流程实例ID", dataType = "String", paramType = "query"),
@@ -159,7 +164,8 @@ public class ProcessTasksController {
     })
     @PostMapping(value = {"/createTaskEntityImpl","/sso/createTaskEntityImpl","/api/createTaskEntityImpl","/anonymous/createTaskEntityImpl"})
     public JsonResponse createTaskEntityImpl (@RequestBody NewTaskInfo newTaskInfo) {
-        processTasksService.createTaskEntityImpl(newTaskInfo.getAssignee(),
+        processTasksService.createTaskEntityImpl(newTaskInfo.getSourceTaskDefinitionKey(),
+                newTaskInfo.getAssignee(),
                 newTaskInfo.getTaskName(),
                 newTaskInfo.getTaskDefinitionKey(),
                 newTaskInfo.getProcessInstanceId(),

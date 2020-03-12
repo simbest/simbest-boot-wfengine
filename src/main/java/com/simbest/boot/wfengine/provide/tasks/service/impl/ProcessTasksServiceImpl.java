@@ -22,7 +22,12 @@ import com.simbest.boot.wfengine.rabbitmq.service.IMqSendService;
 import com.simbest.boot.wfengine.util.ConstansAction;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.map.HashedMap;
+import org.flowable.bpmn.model.BpmnModel;
+import org.flowable.bpmn.model.FlowElement;
+import org.flowable.bpmn.model.Process;
+import org.flowable.bpmn.model.SequenceFlow;
 import org.flowable.common.engine.impl.identity.Authentication;
+import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.impl.persistence.entity.ActivityInstanceEntityImpl;
 import org.flowable.engine.impl.persistence.entity.ExecutionEntityImpl;
 import org.flowable.engine.impl.persistence.entity.HistoricActivityInstanceEntityImpl;
@@ -36,6 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -214,6 +220,7 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
     /**
      * 手动创建多个任务
      *
+     * @param sourceTaskDefinitionKey 上一个任务办理环节
      * @param assignees           多个办理人
      * @param taskName            办理环节名称
      * @param taskDefinitionKey   办理环节key
@@ -222,11 +229,11 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
      * @return
      */
     @Override
-    public List<String> createTaskEntityImpls(List<String> assignees, String taskName, String taskDefinitionKey, String processInstanceId, String processDefinitionId,String tenantId, Map<String, Object> variables) {
+    public List<String> createTaskEntityImpls(String sourceTaskDefinitionKey,List<String> assignees, String taskName, String taskDefinitionKey, String processInstanceId, String processDefinitionId,String tenantId, Map<String, Object> variables) {
         if (assignees != null) {
             List<String> taskIds = new ArrayList<String>();
             for (String assignee : assignees) {
-                taskIds.add(createTaskEntityImpl(assignee, taskName, taskDefinitionKey, processInstanceId, processDefinitionId, tenantId,variables));
+                taskIds.add(createTaskEntityImpl(sourceTaskDefinitionKey,assignee, taskName, taskDefinitionKey, processInstanceId, processDefinitionId, tenantId,variables));
             }
             return taskIds;
         }
@@ -237,6 +244,7 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
     /**
      * 手动创建任务
      *
+     * @param sourceTaskDefinitionKey 上一个任务办理环节
      * @param assignee            办理人
      * @param taskName            办理环节名称
      * @param taskDefinitionKey   办理环节key
@@ -245,7 +253,7 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
      * @return 任务ID
      */
     @Override
-    public String createTaskEntityImpl(String assignee, String taskName, String taskDefinitionKey, String processInstanceId, String processDefinitionId,String tenantId, Map<String, Object> variables) {
+    public String createTaskEntityImpl(String sourceTaskDefinitionKey,String assignee, String taskName, String taskDefinitionKey, String processInstanceId, String processDefinitionId,String tenantId, Map<String, Object> variables) {
         String taskId = "TASK" + CodeGenerator.systemUUID();
         /*先创建执行实例*/
         String processDefinitionIdTmp = MapUtil.getStr(variables, "processDefinitionId");
@@ -265,12 +273,17 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
         baseFlowableProcessApi.getTaskService().saveTask(task);
         log.warn("任务运行实例【{}】>>>>流程定义ID为：{}>>>>>>临时流程定义ID为：{}", task.toString(), task.getProcessDefinitionId(), processDefinitionIdTmp);
 
+        /*创建连接线*/
+        createSequenceFlow(taskId,sourceTaskDefinitionKey,processInstanceId,taskDefinitionKey,executionId,processDefinitionId,tenantId,processDefinitionIdTmp);
+
         /*创建运行节点*/
         String activityInstanceEntityId = createActivityInstanceEntity(taskId, assignee, taskDefinitionKey, taskName, executionId, processInstanceId, processDefinitionId, tenantId, processDefinitionIdTmp);
         /*创建历史运行节点*/
         createHistoricActivityInstanceEntity(activityInstanceEntityId, taskId, assignee, taskDefinitionKey, taskName, executionId, processInstanceId, processDefinitionId, tenantId,processDefinitionIdTmp);
+
         return taskId;
     }
+
 
     /**
      * 手动创建
@@ -363,6 +376,72 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
         baseFlowableProcessApi.getManagementServices().executeCommand(
                 new NewHistoricActivityInstanceEntityCmd(taskId, historicActivityInstanceEntity));
         return activityInstanceEntityId;
+
+    }
+
+    /**
+     * 创建连接线
+     * @param sourceTaskDefinitionKey
+     * @param processInstanceId
+     * @param taskDefinitionKey
+     */
+    public void createSequenceFlow(String taskId,String sourceTaskDefinitionKey, String processInstanceId, String taskDefinitionKey,String executionId,String processDefinitionId,String tenantId,String processDefinitionIdTmp) {
+        SequenceFlow sequenceFlow = getSequenceFlow(processInstanceId,sourceTaskDefinitionKey,taskDefinitionKey);
+        if(sequenceFlow!=null){
+            String activityInstanceEntityId = "SF" + CodeGenerator.systemUUID();
+            ActivityInstanceEntityImpl activityInstanceEntity = new ActivityInstanceEntityImpl();
+            activityInstanceEntity.setProcessDefinitionId(StrUtil.isEmpty(processDefinitionId) ? processDefinitionIdTmp : processDefinitionId);
+            activityInstanceEntity.setProcessInstanceId(processInstanceId);
+            activityInstanceEntity.setExecutionId(executionId);
+            activityInstanceEntity.setActivityId(sequenceFlow.getId());
+            activityInstanceEntity.setActivityType("sequenceFlow");
+            activityInstanceEntity.setStartTime(DateUtil.getCurrent());
+            activityInstanceEntity.setEndTime(DateUtil.getCurrent());
+            activityInstanceEntity.setId(activityInstanceEntityId);
+            activityInstanceEntity.setTenantId(tenantId);
+
+            HistoricActivityInstanceEntityImpl historicActivityInstanceEntity = new HistoricActivityInstanceEntityImpl();
+            historicActivityInstanceEntity.setProcessDefinitionId(StrUtil.isEmpty(processDefinitionId) ? processDefinitionIdTmp : processDefinitionId);
+            historicActivityInstanceEntity.setProcessInstanceId(processInstanceId);
+            historicActivityInstanceEntity.setExecutionId(executionId);
+            historicActivityInstanceEntity.setActivityId(sequenceFlow.getId());
+            historicActivityInstanceEntity.setActivityType("sequenceFlow");
+            historicActivityInstanceEntity.setStartTime(DateUtil.getCurrent());
+            historicActivityInstanceEntity.setEndTime(DateUtil.getCurrent());
+            historicActivityInstanceEntity.setId(activityInstanceEntityId);
+            historicActivityInstanceEntity.setTenantId(tenantId);
+
+
+            baseFlowableProcessApi.getManagementServices().executeCommand(
+                    new NewActivityInstanceEntityCmd(taskId, activityInstanceEntity));
+
+            baseFlowableProcessApi.getManagementServices().executeCommand(
+                    new NewHistoricActivityInstanceEntityCmd(taskId, historicActivityInstanceEntity));
+        }
+    }
+
+    /**
+     * 获取两个环节之间的连线
+     * @param processInstanceId
+     * @param sourceRef
+     * @param targetRef
+     * @return
+     */
+    @Override
+    public SequenceFlow getSequenceFlow(String processInstanceId, String sourceRef, String targetRef){
+        HistoricProcessInstance historicProcessInstance = baseFlowableProcessApi.getHistoryService().createHistoricProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+        BpmnModel bpmnModel = baseFlowableProcessApi.getRepositoryService().getBpmnModel(historicProcessInstance.getProcessDefinitionId());
+        Process process = bpmnModel.getProcesses().get(0);
+        Collection<FlowElement> flowElements = process.getFlowElements();
+        for (FlowElement flowElement : flowElements) {
+            if (flowElement instanceof SequenceFlow) {
+                SequenceFlow sequenceFlow = (SequenceFlow) flowElement;
+                if(sequenceFlow.getSourceRef().equals(sourceRef) && sequenceFlow.getTargetRef().equals(targetRef)){
+                    return sequenceFlow;
+                }
+            }
+        }
+        return null;
 
     }
 

@@ -18,6 +18,7 @@ import java.util.Map;
 @Data
 public class NewTaskInfo {
 
+    private String sourceTaskDefinitionKey;
     private String assignee;
     private List<String> assignees;
     private String taskName;
