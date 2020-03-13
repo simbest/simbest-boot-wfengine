@@ -441,6 +441,8 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
                 }
             }
         }
+        log.error("#####################################ERROR#ERROR#ERROR#ERROR#ERROR#ERROR##ERROR####################################");
+        log.error("找不到对应的连接线，请检查参数：processInstanceId："+processInstanceId+";sourceRef:"+sourceRef+";targetRef:"+targetRef);
         return null;
 
     }
