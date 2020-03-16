@@ -107,6 +107,9 @@ public class ProcessDefinitionsServiceImpl implements IProcessDefinitionsService
                 activityIds.add(task.getTaskDefinitionKey());
             }
             ProcessEngineConfiguration engConf = baseFlowableProcessApi.getDefaultProcessEngine().getProcessEngineConfiguration();
+            engConf.setActivityFontName( "宋体" );
+            engConf.setLabelFontName( "宋体" );
+            engConf.setAnnotationFontName("宋体");
             //定义流程画布生成器
             ProcessDiagramGenerator processDiagramGenerator = engConf.getProcessDiagramGenerator();
             InputStream in = processDiagramGenerator.generateDiagram(bpmnModel, "png", activityIds, flows, engConf.getActivityFontName(), engConf.getLabelFontName(), engConf.getAnnotationFontName(), engConf.getClassLoader(), 1.0, true);
