@@ -128,12 +128,12 @@ public class ProcessDefinitionsServiceImpl implements IProcessDefinitionsService
      * @return
      */
     @Override
-    public ProcessDefinition definitionsGetByKey(String key, Integer version, String tenantId) {
+    public ProcessDefinition definitionsGetByKey(String key, String version, String tenantId) {
         if(key!=null && version!=null){
             List<ProcessDefinition> list = baseFlowableProcessApi.getRepositoryService().createProcessDefinitionQuery()
                     .processDefinitionTenantId(tenantId)
                     .processDefinitionKey(key)
-                    .processDefinitionVersion(version)
+                    .processDefinitionVersion(Integer.parseInt(version))
                     .list();
             if(list!=null && list.size()>0){
                 return list.get(0);

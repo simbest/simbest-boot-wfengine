@@ -84,7 +84,7 @@ public class ProcessDefinitionsController {
             @ApiImplicitParam(name = "tenantId", value = "租户ID", dataType = "String", paramType = "query")
     })
     @PostMapping(value = {"/definitionsGetByKey","/sso/definitionsGetByKey","/api/definitionsGetByKey","/anonymous/definitionsGetByKey"})
-    public JsonResponse definitionsGetByKey (String key,Integer version,String  tenantId) {
+    public JsonResponse definitionsGetByKey (String key,String version,String  tenantId) {
         if(tenantId==null){
             return JsonResponse.fail("租户tenantId是空的，请检查！");
         }

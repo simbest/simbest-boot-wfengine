@@ -47,5 +47,5 @@ public interface IProcessDefinitionsService {
      * @param tenantId
      * @return
      */
-    ProcessDefinition definitionsGetByKey(String key, Integer version, String tenantId);
+    ProcessDefinition definitionsGetByKey(String key, String version, String tenantId);
 }
