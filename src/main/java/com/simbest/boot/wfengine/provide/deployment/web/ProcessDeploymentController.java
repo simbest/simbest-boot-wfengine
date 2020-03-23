@@ -3,6 +3,8 @@ package com.simbest.boot.wfengine.provide.deployment.web;
 import com.google.common.collect.Maps;
 import com.simbest.boot.base.exception.GlobalExceptionRegister;
 import com.simbest.boot.base.web.response.JsonResponse;
+import com.simbest.boot.wfengine.app.model.SysAppConfig;
+import com.simbest.boot.wfengine.process.api.CallFlowableProcessApi;
 import com.simbest.boot.wfengine.provide.deployment.service.IProcessDeploymentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -35,6 +37,8 @@ public class ProcessDeploymentController {
 
     @Autowired
     private IProcessDeploymentService processDeploymentService;
+    @Autowired
+    private CallFlowableProcessApi callFlowableProcessApi;
 
     @ApiOperation(value = "自动部署专用，tenantId必填")
     @ApiImplicitParams({
@@ -49,6 +53,14 @@ public class ProcessDeploymentController {
         if(tenantId==null){
             return JsonResponse.fail("租户tenantId是空的，请检查！");
         }
+        SysAppConfig sysAppConfig = callFlowableProcessApi.getAppByTenantId(tenantId);
+        if(sysAppConfig ==null ){
+            return JsonResponse.fail("租户"+tenantId+":不存在对应的应用配置，请检查！");
+        }
+        if(sysAppConfig.getIsAllowAutoDeploy() == null || sysAppConfig.getIsAllowAutoDeploy()==0){
+            return JsonResponse.fail("应用系统"+tenantId+":不允许调用该接口自动发布流程，请检查应用配置表字段isAllowAutoDeploy！");
+        }
+
         try {
             Map<String,Object> map = Maps.newHashMap( );
             map.put( "name",name );

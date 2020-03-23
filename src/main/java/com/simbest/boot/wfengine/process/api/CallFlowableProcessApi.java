@@ -91,11 +91,20 @@ public class CallFlowableProcessApi {
 
     /*根据租户id获取当前租户的回调域名*/
     private String getUrlByTenantId(String tenantId) {
+        SysAppConfig sysAppConfig = getAppByTenantId(tenantId);
+        if(sysAppConfig ==null ){
+            return null;
+        }
+        return sysAppConfig.getAppUrl();
+    }
+
+    /*根据租户id获取应用系统信息*/
+    public SysAppConfig getAppByTenantId(String tenantId) {
         Map<String,SysAppConfig> mapConfig = CommonInterceptor.mapConfig;
         if (mapConfig == null) {
             mapConfig = sysAppConfigServiceImpl.loadConfig(mapConfig);
         }
         SysAppConfig sysAppConfig = mapConfig.get(tenantId);
-        return sysAppConfig.getAppUrl();
+        return sysAppConfig;
     }
 }

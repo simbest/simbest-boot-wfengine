@@ -65,4 +65,9 @@ public class SysAppConfig extends LogicModel {
     @Column(name = "whiteHost", nullable = true, length=200)
     private String whiteHost;//授权ip
 
+    @ApiModelProperty(value = "是否允许自动发布")
+    @Column(name = "isAllowAutoDeploy", length=4,columnDefinition = "int default 0")
+    private Integer isAllowAutoDeploy;//是否允许应用系统调用自动发布接口发布流程 0和null不允许，1可以自动发布
+
+
 }
