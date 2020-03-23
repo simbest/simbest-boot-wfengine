@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.flowable.engine.impl.persistence.entity.ProcessDefinitionEntityImpl;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -66,6 +68,52 @@ public class ProcessDefinitionsController {
     public JsonResponse definitionsGet (String processDefinitionId) {
         ProcessDefinition processDefinition = processDefinitionsService.definitionsGet(processDefinitionId);
         return JsonResponse.success(processDefinition);
+    }
+
+    /**
+     * 根据key获得一个流程定义 ,version可以不填，如果不填，获取最新的返回。
+     * @param key
+     * @param version
+     * @param tenantId
+     * @return
+     */
+    @ApiOperation(value = "根据key获得一个流程定义")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "key", value = "流程定义Key", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "version", value = "版本号（version可以不填，如果不填，获取最新的返回）", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "tenantId", value = "租户ID", dataType = "String", paramType = "query")
+    })
+    @PostMapping(value = {"/definitionsGetByKey","/sso/definitionsGetByKey","/api/definitionsGetByKey","/anonymous/definitionsGetByKey"})
+    public JsonResponse definitionsGetByKey (String key,Integer version,String  tenantId) {
+        if(tenantId==null){
+            return JsonResponse.fail("租户tenantId是空的，请检查！");
+        }
+        ProcessDefinitionEntityImpl processDefinition = (ProcessDefinitionEntityImpl) processDefinitionsService.definitionsGetByKey(key,version,tenantId);
+        if(processDefinition!=null){
+            Map result = new HashMap();
+            result.put("name",processDefinition.getName());
+            result.put("description",processDefinition.getDescription());
+            result.put("key",processDefinition.getKey());
+            result.put("version",processDefinition.getVersion());
+            result.put("category",processDefinition.getCategory());
+            result.put("deploymentId",processDefinition.getDeploymentId());
+            result.put("resourceName",processDefinition.getResourceName());
+            result.put("tenantId",processDefinition.getTenantId());
+            result.put("historyLevel",processDefinition.getHistoryLevel());
+            result.put("diagramResourceName",processDefinition.getDiagramResourceName());
+            result.put("hasStartFormKey",processDefinition.getHasStartFormKey());
+            result.put("suspensionState",processDefinition.getSuspensionState());
+            result.put("ioSpecification",processDefinition.getIoSpecification());
+            result.put("derivedFrom",processDefinition.getDerivedFrom());
+            result.put("derivedVersion",processDefinition.getDerivedVersion());
+            result.put("engineVersion",processDefinition.getEngineVersion());
+            result.put("id",processDefinition.getId());
+            result.put("revision",processDefinition.getRevision());
+            return JsonResponse.success(result);
+        }else{
+            return JsonResponse.fail("返回结果为空，请检查查询参数！");
+        }
+
     }
 
 
