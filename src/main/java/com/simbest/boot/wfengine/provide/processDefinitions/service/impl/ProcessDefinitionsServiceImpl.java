@@ -153,4 +153,21 @@ public class ProcessDefinitionsServiceImpl implements IProcessDefinitionsService
         return null;
     }
 
+    /**
+     * 根据Key获取流程图，version可以不填，如果不填，获取最新的返回。
+     *
+     * @param key
+     * @param version
+     * @param tenantId
+     * @return
+     */
+    @Override
+    public InputStream getDiagramByKey(String key, String version, String tenantId) {
+        ProcessDefinition processDefinition = definitionsGetByKey(key,version,tenantId);
+        if(processDefinition!=null){
+            return  baseFlowableProcessApi.getRepositoryService().getResourceAsStream(processDefinition.getDeploymentId(), processDefinition.getDiagramResourceName());
+        }
+        return null;
+    }
+
 }
