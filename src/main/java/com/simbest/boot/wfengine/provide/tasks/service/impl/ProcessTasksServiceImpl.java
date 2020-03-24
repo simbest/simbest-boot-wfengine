@@ -70,10 +70,12 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
 
     @Override
     public int tasksAddComment(String currentUserCode, String taskId, String processInstanceId, String comment) {
+        log.warn( "1-新增意见时，任务ID为：{}",taskId );
         int i = 1;
         try {
             if (taskId != null) {
                 Task task = baseFlowableProcessApi.getTaskService().createTaskQuery().taskId(taskId).singleResult();
+                log.warn( "1-新增意见时，任务对象为：{}",task.getOwner() );
                 if (task.getOwner() != null) {
                     Authentication.setAuthenticatedUserId(task.getOwner());
                     baseFlowableProcessApi.getTaskService().addComment(taskId, processInstanceId, comment);
