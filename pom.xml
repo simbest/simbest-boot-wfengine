@@ -214,6 +214,21 @@
             </properties>
         </profile>
         <profile>
+            <id>test</id>
+            <properties>
+                <profileActive>test</profileActive>
+                <spring.datasource.database.type>oracle</spring.datasource.database.type>
+                <spring.datasource.driver-class-name>oracle.jdbc.OracleDriver</spring.datasource.driver-class-name>
+                <spring.datasource.url>jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS= (PROTOCOL=TCP)(HOST=10.92.82.161)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME = orcl)))</spring.datasource.url>
+                <spring.datasource.username>${project.artifactId}</spring.datasource.username>
+                <spring.datasource.password>Test44We</spring.datasource.password>
+                <spring.redis.cluster.nodes>10.92.82.44:6379</spring.redis.cluster.nodes>
+                <spring.redis.cluster.password>Xianzai@2605</spring.redis.cluster.password>
+                <spring.jpa.database-platform>org.hibernate.dialect.Oracle10gDialect</spring.jpa.database-platform>
+                <spring.datasource.druid.filter.wall.enabled>true</spring.datasource.druid.filter.wall.enabled>
+            </properties>
+        </profile>
+        <profile>
             <id>prd</id>
             <!--<properties>
                 <profileActive>prd</profileActive>

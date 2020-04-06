@@ -15,6 +15,7 @@
 
 5.打包 
 测试环境 mvn clean package -Dmaven.test.skip=true -Puat
+测试环境 mvn clean package -Dmaven.test.skip=true -Ptest
 生产环境 mvn clean package -Dmaven.test.skip=true -Pprd
 
 
