@@ -5,6 +5,7 @@ import com.simbest.boot.base.exception.Exceptions;
 import com.simbest.boot.base.web.response.JsonResponse;
 import com.simbest.boot.util.DateUtil;
 import com.simbest.boot.util.json.JacksonUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -14,10 +15,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class EngineWqqueryHttpService {
-    private static final Logger log = LoggerFactory.getLogger(EngineWqqueryHttpService.class);
-
     /**
      * 三个常量建议直接配置
      * 目前客户端系统也没有检验机制，所以在配置文件中配置或者在这里配置是一样的，暂时没用
@@ -32,7 +32,7 @@ public class EngineWqqueryHttpService {
      * @param jsonParam
      * @throws
      */
-    public Map<String,Object> callInterfaceJsonObject(String appUrl,String url, Map<String,Object> jsonParam)  {
+    public Map<String,Object> callInterfaceJsonObject(String appUrl, String url, Map<String,Object> jsonParam)  {
 
         Date date = DateUtil.getCurrent();
         String SUBMITDATE = DateUtil.getTimestamp(date);
@@ -54,10 +54,10 @@ public class EngineWqqueryHttpService {
                     .charset("utf-8")
                     .asBean(JsonResponse.class);
             if (jsonResponse.getErrcode().equals(JsonResponse.ERROR_CODE)) {
-                log.error(SOURCESYSTEMID+"调用"+url+"失败！");
+                log.error("应用【{}】调用【{}】接口【{}】失败", SOURCESYSTEMID, appUrl, url);
                 map.put("state",ConstantsUtils.FAILE);
             } else if (jsonResponse.getErrcode().equals(JsonResponse.SUCCESS_CODE)) {
-                log.info(SOURCESYSTEMID+"调用"+url+"成功！");
+                log.info("应用【{}】调用【{}】接口【{}】成功", SOURCESYSTEMID, appUrl, url);
                 map.put("state",ConstantsUtils.SUCCESS);
             }
             map.put("message",jsonResponse.getMessage());
@@ -65,7 +65,8 @@ public class EngineWqqueryHttpService {
         }catch(Exception e){
             map.put("state",ConstantsUtils.FAILE);
             map.put("message",ConstantsUtils.ERRORMES);
-            log.error(Exceptions.getStackTraceAsString(e));
+            log.error("应用【{}】调用【{}】接口【{}】发生异常【{}】", SOURCESYSTEMID, appUrl, url, e.getMessage());
+            Exceptions.printException(e);
         }
         return map;
     }

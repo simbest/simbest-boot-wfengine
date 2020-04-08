@@ -6,6 +6,7 @@ import com.simbest.boot.wfengine.app.model.SysAppConfig;
 import com.simbest.boot.wfengine.app.service.ISysAppConfigService;
 import com.simbest.boot.wfengine.util.ConstantsUtils;
 import com.simbest.boot.wfengine.util.JsonResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +26,8 @@ import java.util.Map;
  * @Date 2019/12/12 15:19
  * @Version 1.0
  **/
+@Slf4j
 public class CommonInterceptor extends HandlerInterceptorAdapter {
-
-    private final Logger log = LoggerFactory.getLogger(CommonInterceptor.class);
 
     @Autowired
     private ISysAppConfigService sysAppConfigServiceImpl;
