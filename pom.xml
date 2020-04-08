@@ -211,6 +211,8 @@
                 <spring.redis.cluster.password>Xianzai@2605</spring.redis.cluster.password>
                 <spring.jpa.database-platform>org.hibernate.dialect.Oracle10gDialect</spring.jpa.database-platform>
                 <spring.datasource.druid.filter.wall.enabled>true</spring.datasource.druid.filter.wall.enabled>
+                <app.file.upload.path>/data/static</app.file.upload.path>
+                <app.file.upload.location>disk</app.file.upload.location>
             </properties>
         </profile>
         <profile>
@@ -245,8 +247,9 @@
                 <spring.datasource.druid.filter.wall.enabled>true</spring.datasource.druid.filter.wall.enabled>
                 <app.captcha.enable>false</app.captcha.enable>
                 <app.host.port>http://iportal.ha.cmcc/wfengine</app.host.port>
-                <app.file.upload.location>fastdfs</app.file.upload.location>
-                <app.file.upload.path></app.file.upload.path>
+                <app.file.upload.path>/portalUi/portal/wfengine</app.file.upload.path>
+                <app.file.upload.location>disk</app.file.upload.location>
+                <app.file.upload.path>/portalUi/portal/wfengine</app.file.upload.path>
                 <app.captcha.enable>true</app.captcha.enable>
             </properties>
         </profile>
