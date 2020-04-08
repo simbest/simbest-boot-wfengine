@@ -61,7 +61,9 @@ public class SysCommonUserServiceImpl extends LogicService<SysCommonUser, String
             throw new UsernameNotFoundException("keyword: "+keyword+" not found");
         }
         Set<SysCommonRole> roleSet = roleRepository.findByUserId(iUser.getId());
+        log.warn("角色记录数【{}】", roleSet.size());
         Set<SysCommonPermission> permissionSet = permissionRepository.findByUserId(iUser.getId());
+        log.warn("权限记录数【{}】", permissionSet.size());
         iUser.setAuthRoles(roleSet);
         iUser.setAuthPermissions(permissionSet);
         iUser.addAppAuthorities(roleSet);

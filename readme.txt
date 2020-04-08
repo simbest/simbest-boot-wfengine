@@ -26,8 +26,10 @@ java -jar target/wfengine.jar --server.port=8080 (指定端口)
 cd /data/web/wfengine
 nohup /usr/local/jdk1.8/jre/bin/java -jar wfengine.jar --server.port=8080 > /dev/null 2>&1 &
 tailf boot_app_logs/wfengine/log_info.log
+6.2 后台运行（生产环境）
+cd /cmcc/apps/simbestboot
+nohup /usr/java/jdk1.8.0_161/bin/java -server -Xms2048m -Xmx2048m -Xmn512m -Xss256k -XX:SurvivorRatio=8  -XX:+PrintGCDetails -XX:MetaspaceSize=128M -XX:MaxMetaspaceSize=256M  -XX:CMSInitiatingOccupancyFraction=70 -jar wfengine.jar --server.port=9999 > /dev/null 2>&1 &
 
-部署微信URL配置：http://wfenginewx.fijo.com.cn/anonymous/portal/wx63474943d6e6c61d
 
 常见启动问题：
 凡是启动的时候，没有出现大大的Simple & Best字样，都是启动有问题，例如：
