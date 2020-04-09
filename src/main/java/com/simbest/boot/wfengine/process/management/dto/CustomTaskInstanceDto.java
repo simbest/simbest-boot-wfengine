@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Id;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -41,9 +40,9 @@ public class CustomTaskInstanceDto {
     private String assignee;//当前办理人
     private String startTime;//开始时间
     private String endTime;//结束时间
-    private BigInteger duration;//持续时间
+    private String duration;//持续时间
     private String deleteReason;//终止原因
-    private Integer priority;//优先级
+    private String priority;//优先级
     private String tenantId;//租户id
 
     public static CustomTaskInstanceDto toObject(Map map) {
@@ -62,9 +61,11 @@ public class CustomTaskInstanceDto {
         Date endTime = map.get("endTime")==null?(Date)map.get("ENDTIME"):(Date)map.get("endTime");
         customTaskInstanceDto.setStartTime(startTime!=null?DateUtil.getDate(startTime,DateUtil.timestampPattern1):null);
         customTaskInstanceDto.setEndTime(endTime!=null?DateUtil.getDate(endTime,DateUtil.timestampPattern1):null);
-        customTaskInstanceDto.setDuration((BigInteger)map.get("duration")==null?(BigInteger)map.get("DURATION"):(BigInteger)map.get("duration"));
+        Object duration = map.get("duration")==null?map.get("DURATION"):map.get("duration");
+        customTaskInstanceDto.setDuration(duration!=null?duration.toString():null);
         customTaskInstanceDto.setDeleteReason((String)map.get("deleteReason")==null?(String)map.get("DELETEREASON"):(String)map.get("deleteReason"));
-        customTaskInstanceDto.setPriority((Integer)map.get("priority")==null?(Integer)map.get("PRIORITY"):(Integer)map.get("priority"));
+        Object priority  = map.get("priority")==null?map.get("PRIORITY"):map.get("priority");
+        customTaskInstanceDto.setPriority(priority!=null?priority.toString():null);
         customTaskInstanceDto.setTenantId((String)map.get("tenantId")==null?(String)map.get("TENANTID"):(String)map.get("tenantId"));
 
         return customTaskInstanceDto;

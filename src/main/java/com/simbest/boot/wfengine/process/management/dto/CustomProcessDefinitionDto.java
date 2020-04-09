@@ -28,7 +28,7 @@ public class CustomProcessDefinitionDto {
     private String category;//流程分类
     private String name;//流程名称
     private String key_;//流程key
-    private Integer version;//版本号
+    private String version;//版本号
     private String deploymentId;//部署id
     private String tenantId;//租户id
 
@@ -38,7 +38,8 @@ public class CustomProcessDefinitionDto {
         customProcessDefinitionDto.setCategory((String)map.get("category")==null?(String)map.get("CATEGORY"):(String)map.get("category"));
         customProcessDefinitionDto.setName((String)map.get("name")==null?(String)map.get("NAME"):(String)map.get("name"));
         customProcessDefinitionDto.setKey_((String)map.get("key_")==null?(String)map.get("KEY_"):(String)map.get("key_"));
-        customProcessDefinitionDto.setVersion((Integer) map.get("version")==null?(Integer)map.get("VERSION"):(Integer)map.get("version"));
+        Object version = map.get("version")==null?map.get("VERSION"):map.get("version");
+        customProcessDefinitionDto.setVersion(version!=null?version.toString():null);
         customProcessDefinitionDto.setDeploymentId((String)map.get("deploymentId")==null?(String)map.get("DEPLOYMENTID"):(String)map.get("deploymentId"));
         customProcessDefinitionDto.setTenantId((String)map.get("tenantId")==null?(String)map.get("TENANTID"):(String)map.get("tenantId"));
         return customProcessDefinitionDto;
