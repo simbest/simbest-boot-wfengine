@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>登录晟壁云流程引擎</title>
+    <title>统一流程引擎</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
@@ -22,16 +22,22 @@
             $("#password").val(passW);
             return true;
         };
+        function refreshCaptcha() {
+            $("#captcha").attr("src","/wfengine/captcha?t=" + Math.random());
+        };
     </script>
 </head>
 <body>
 <!--login-->
-<form id="login" method="POST" th:action="@{/restlogin}" onsubmit="return check()">
-    <input id="appcode" name="appcode" type="hidden" value="wfengine"/>
+<form id="login" method="POST" th:action="@{/login}" onsubmit="return check()">
+    <input id="appcode" name="appcode" type="hidden" value="anddoc"/>
     <table cellspacing="15" cellpadding="0" border="0" class="login_tab">
         <tr><td colspan="2" align="center"><h5 class="login_tit">用户登录</h5></td></tr>
         <tr><td colspan="2" class="td_user"><input id="username" name="username" type="text" autofocus="autofocus" placeholder="请输入用户名"/><i class="user"></i></td></tr>
         <tr><td colspan="2"><input id="password" name="password" type="password" placeholder="请输入密码"/><i class="lock"></i></td></tr>
+        <tr><td width="230" class="td_code"><input id="verifyCode" name="verifyCode" type="text" placeholder="请输入验证码" /><i class="code"></i></td>
+        <td width="115"><img width="115" height="38" id="captcha" src="/wfengine/captcha" title="点击更换" onclick="javascript:refreshCaptcha();"/></td></tr>
+        <tr style="height:5px;"><td colspan="2"></td></tr>
         <tr><td colspan="2" align="center"><input type="submit" class="input_btn input_sub" value="登&nbsp;&nbsp;&nbsp;录"/></td></tr>
         <!--<tr><td align="center"><a id="submit" class="input_btn">登&nbsp;&nbsp;&nbsp;录</a></td></tr>-->
     </table>

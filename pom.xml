@@ -238,18 +238,17 @@
                 <spring.jpa.generate-ddl>true</spring.jpa.generate-ddl>
                 <spring.datasource.database.type>oracle</spring.datasource.database.type>
                 <spring.datasource.driver-class-name>oracle.jdbc.OracleDriver</spring.datasource.driver-class-name>
-                <spring.datasource.url>jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=10.92.82.184)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.92.82.185)(PORT=1521))(FAILOVER=on)(LOAD_BALANCE=off))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=oraportaldb)(failover_mode=(type=select)(method=basic))))</spring.datasource.url>
-                <spring.datasource.username>${project.artifactId}</spring.datasource.username>
-                <spring.datasource.password>Simbest168#We</spring.datasource.password>
-                <spring.redis.cluster.nodes>10.92.82.163:26379,10.92.82.163:26389,10.92.82.163:26399,10.92.82.164:26379,10.92.82.164:26389,10.92.82.164:26399</spring.redis.cluster.nodes>
-                <spring.redis.cluster.password>Xianzai@0528</spring.redis.cluster.password>
                 <spring.jpa.database-platform>org.hibernate.dialect.Oracle10gDialect</spring.jpa.database-platform>
                 <spring.datasource.druid.filter.wall.enabled>true</spring.datasource.druid.filter.wall.enabled>
-                <app.captcha.enable>false</app.captcha.enable>
-                <app.host.port>http://iportal.ha.cmcc/wfengine</app.host.port>
-                <app.file.upload.path>/portalUi/portal/wfengine</app.file.upload.path>
+                <spring.datasource.url>jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=10.87.42.101)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.87.42.102)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.87.42.103)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.87.42.104)(PORT=1521))(FAILOVER=on)(LOAD_BALANCE=off))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=PDB_ANDDOC)(failover_mode=(type=select)(method=basic))))</spring.datasource.url>
+                <spring.datasource.username>WFENGINE</spring.datasource.username>
+                <spring.datasource.password>3edc#EDC</spring.datasource.password>
+                <spring.redis.cluster.nodes>10.96.163.6:6666,10.96.163.7:6666,10.96.163.8:6666,10.96.163.9:6666,10.96.163.10:6666,10.96.163.11:6666</spring.redis.cluster.nodes>
+                <spring.redis.cluster.password>Xianzai@0528</spring.redis.cluster.password>
+                <app.captcha.enable>true</app.captcha.enable>
+                <app.host.port>http://anddoc.ha.cmcc/wfengine</app.host.port>
+                <app.file.upload.path>/data/uploadFiles/wfengine</app.file.upload.path>
                 <app.file.upload.location>disk</app.file.upload.location>
-                <app.file.upload.path>/portalUi/portal/wfengine</app.file.upload.path>
                 <app.captcha.enable>true</app.captcha.enable>
             </properties>
         </profile>
