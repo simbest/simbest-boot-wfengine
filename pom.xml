@@ -155,6 +155,7 @@
                         <profile>dev</profile>
                         <profile>uat</profile>
                         <profile>test</profile>
+                        <profile>uat11</profile>
                         <profile>prd</profile>
                     </profiles>
                 </configuration>
@@ -230,6 +231,34 @@
                 <spring.datasource.druid.filter.wall.enabled>true</spring.datasource.druid.filter.wall.enabled>
             </properties>
         </profile>
+
+        <profile>
+            <id>uat11</id>
+            <properties>
+                <profileActive>prd</profileActive>
+                <app.uums.address>http://10.92.81.163:8088/uums</app.uums.address>
+                <spring.jpa.generate-ddl>true</spring.jpa.generate-ddl>
+                <spring.datasource.database.type>oracle</spring.datasource.database.type>
+                <spring.datasource.driver-class-name>oracle.jdbc.OracleDriver</spring.datasource.driver-class-name>
+                <spring.jpa.database-platform>org.hibernate.dialect.Oracle10gDialect</spring.jpa.database-platform>
+                <spring.datasource.druid.filter.wall.enabled>true</spring.datasource.druid.filter.wall.enabled>
+                <spring.datasource.url>jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=10.87.42.101)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.87.42.102)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.87.42.103)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.87.42.104)(PORT=1521))(FAILOVER=on)(LOAD_BALANCE=off))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=PDB_ANDDOC)(failover_mode=(type=select)(method=basic))))</spring.datasource.url>
+                <spring.datasource.username>WFENGINEPRD</spring.datasource.username>
+                <spring.datasource.password>3edc#EDC</spring.datasource.password>
+                <!--                <spring.datasource.url>jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=10.92.82.184)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.92.82.185)(PORT=1521))(FAILOVER=on)(LOAD_BALANCE=off))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=oraportaldb)(failover_mode=(type=select)(method=basic))))</spring.datasource.url>-->
+                <!--                <spring.datasource.username>wfengine</spring.datasource.username>-->
+                <!--                <spring.datasource.password>Simbest168#We</spring.datasource.password>-->
+                <spring.redis.cluster.nodes></spring.redis.cluster.nodes>
+                <spring.redis.config.type>dictValueRedis</spring.redis.config.type>
+                <spring.redis.config.type.redis>redis-6-11-6666</spring.redis.config.type.redis>
+                <spring.redis.cluster.password>Xianzai@0528</spring.redis.cluster.password>
+                <app.captcha.enable>true</app.captcha.enable>
+                <app.host.port>http://anddoc.ha.cmcc/wfengine</app.host.port>
+                <app.file.upload.path>/data/uploadFiles/wfengine</app.file.upload.path>
+                <app.file.upload.location>disk</app.file.upload.location>
+                <app.captcha.enable>true</app.captcha.enable>
+            </properties>
+        </profile>
         <profile>
             <id>prd</id>
             <properties>
@@ -242,7 +271,7 @@
                 <spring.datasource.druid.filter.wall.enabled>true</spring.datasource.druid.filter.wall.enabled>
                 <spring.datasource.url>jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=10.87.42.101)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.87.42.102)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.87.42.103)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.87.42.104)(PORT=1521))(FAILOVER=on)(LOAD_BALANCE=off))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=PDB_ANDDOC)(failover_mode=(type=select)(method=basic))))</spring.datasource.url>
                 <spring.datasource.username>WFENGINE</spring.datasource.username>
-                <spring.datasource.password>3edc#EDC</spring.datasource.password>
+                <spring.datasource.password>Simbest#168</spring.datasource.password>
 <!--                <spring.datasource.url>jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=10.92.82.184)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.92.82.185)(PORT=1521))(FAILOVER=on)(LOAD_BALANCE=off))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=oraportaldb)(failover_mode=(type=select)(method=basic))))</spring.datasource.url>-->
 <!--                <spring.datasource.username>wfengine</spring.datasource.username>-->
 <!--                <spring.datasource.password>Simbest168#We</spring.datasource.password>-->
