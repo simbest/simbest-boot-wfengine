@@ -6,11 +6,16 @@ package com.simbest.boot.wfengine.process.management.web;/**
 import com.google.common.collect.Maps;
 import com.simbest.boot.base.exception.Exceptions;
 import com.simbest.boot.base.web.response.JsonResponse;
+import com.simbest.boot.wfengine.api.BaseFlowableProcessApi;
 import com.simbest.boot.wfengine.process.management.dto.CustomProcessInstanceDto;
 import com.simbest.boot.wfengine.process.management.service.ICustomProcessInstanceService;
 import com.simbest.boot.wfengine.process.management.service.impl.GetPageable;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
+import org.flowable.common.engine.impl.interceptor.CommandExecutor;
+import org.flowable.engine.impl.cmd.SetProcessDefinitionVersionCmd;
+import org.flowable.engine.repository.ProcessDefinition;
+import org.flowable.engine.runtime.ProcessInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,8 +36,12 @@ import java.util.Map;
 @RestController
 @RequestMapping("/processManagement/instance")
 public class CustomProcessInstanceController  {
+
     @Autowired
     private ICustomProcessInstanceService service;
+
+    @Autowired
+    private BaseFlowableProcessApi baseFlowableProcessApi;
 
     @PostMapping({"/findAllCustom", "/sso/findAllCustom", "/api/findAllCustom","/anonymous/findAllCustom"})
     public JsonResponse findAllCustom(@RequestParam(required = false,defaultValue = "1") int page, @RequestParam(required = false,defaultValue = "10") int size,
@@ -56,17 +65,18 @@ public class CustomProcessInstanceController  {
     public JsonResponse upgradeProcessInstanceVersion(String processInstanceIds,Integer verion){
         Map<String, Object> map = Maps.newHashMap();
         try {
-//            CommandExecutor commandExecutor = processEngineConfiguration.getCommandExecutor();
-//            String[] processInstanceIdArray = processInstanceIds.split(",");
-//            for(String processInstanceId : processInstanceIdArray){
-//                ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
-//                if(processInstance!=null){
-//                    ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionKey(processInstance.getProcessDefinitionKey()).processDefinitionVersion(verion).singleResult();
-//                    if(processDefinition!=null){
-//                        commandExecutor.execute(new SetProcessDefinitionVersionCmd(processInstanceId, processDefinition.getVersion()));
-//                    }
-//                }
-//            }
+            CommandExecutor commandExecutor = baseFlowableProcessApi.getProcessEngineConfiguration().getCommandExecutor();
+            String[] processInstanceIdArray = processInstanceIds.split(",");
+            for(String processInstanceId : processInstanceIdArray){
+                ProcessInstance processInstance = baseFlowableProcessApi.getRuntimeService().createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+                if(processInstance!=null){
+                    //ProcessDefinition processDefinition = baseFlowableProcessApi.getRepositoryService().createProcessDefinitionQuery().processDefinitionKey(processInstance.getProcessDefinitionKey()).processDefinitionVersion(verion).singleResult();
+                    ProcessDefinition processDefinition = baseFlowableProcessApi.getRepositoryService().createProcessDefinitionQuery().processDefinitionKey(processInstance.getProcessDefinitionKey()).latestVersion().singleResult();
+                    if(processDefinition!=null){
+                        commandExecutor.execute(new SetProcessDefinitionVersionCmd(processInstanceId, processDefinition.getVersion()));
+                    }
+                }
+            }
             return JsonResponse.success("操作成功");
         } catch (Exception e) {
             log.error(Exceptions.getStackTraceAsString(e));

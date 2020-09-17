@@ -19,6 +19,12 @@ public class BaseFlowableProcessApi {
         return processEngine;
     }
 
+    public ProcessEngineConfiguration getProcessEngineConfiguration(){
+        ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
+        ProcessEngineConfiguration processEngineConfiguration = processEngine.getProcessEngineConfiguration();
+        return processEngineConfiguration;
+    }
+
     /**
      * 这个服务提供了管理与控制部署
      * (deployments)与流程定义(process definitions)的操作
