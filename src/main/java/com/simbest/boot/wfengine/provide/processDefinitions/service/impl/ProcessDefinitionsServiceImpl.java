@@ -3,6 +3,7 @@ package com.simbest.boot.wfengine.provide.processDefinitions.service.impl;/**
  * @create 2019/12/3 18:49.
  */
 
+import cn.hutool.core.util.StrUtil;
 import com.simbest.boot.wfengine.api.BaseFlowableProcessApi;
 import com.simbest.boot.wfengine.provide.processDefinitions.service.IProcessDefinitionsService;
 import lombok.extern.slf4j.Slf4j;
@@ -125,28 +126,27 @@ public class ProcessDefinitionsServiceImpl implements IProcessDefinitionsService
     /**
      * 根据key获得一个流程定义 ,version可以不填，如果不填，获取最新的返回。
      *
-     * @param key
+     * @param processDefinitionKey
      * @param version
      * @param tenantId
      * @return
      */
     @Override
-    public ProcessDefinition definitionsGetByKey(String key, String version, String tenantId) {
-        if(key!=null && version!=null){
+    public ProcessDefinition definitionsGetByKey(String processDefinitionKey, String version, String tenantId) {
+        if(StrUtil.isNotBlank(processDefinitionKey) && StrUtil.isNotBlank(version)){
             List<ProcessDefinition> list = baseFlowableProcessApi.getRepositoryService().createProcessDefinitionQuery()
                     .processDefinitionTenantId(tenantId)
-                    .processDefinitionKey(key)
+                    .processDefinitionKey(processDefinitionKey)
                     .processDefinitionVersion(Integer.parseInt(version))
                     .list();
             if(list!=null && list.size()>0){
                 return list.get(0);
             }
         }
-
-        if(key!=null){
+        if(StrUtil.isNotBlank(processDefinitionKey)){
             List<ProcessDefinition> list = baseFlowableProcessApi.getRepositoryService().createProcessDefinitionQuery()
                     .processDefinitionTenantId(tenantId)
-                    .processDefinitionKey(key)
+                    .processDefinitionKey(processDefinitionKey)
                     .latestVersion()
                     .list();
             if(list!=null && list.size()>0){
@@ -159,15 +159,15 @@ public class ProcessDefinitionsServiceImpl implements IProcessDefinitionsService
     /**
      * 根据Key获取流程图，version可以不填，如果不填，获取最新的返回。
      *
-     * @param key
+     * @param processDefinitionKey
      * @param version
      * @param tenantId
      * @return
      */
     @Override
-    public InputStream getDiagramByKey(String key, String version, String tenantId) {
-        ProcessDefinition processDefinition = definitionsGetByKey(key,version,tenantId);
-        if(processDefinition!=null){
+    public InputStream getDiagramByKey(String processDefinitionKey, String version, String tenantId) {
+        ProcessDefinition processDefinition = definitionsGetByKey(processDefinitionKey,version,tenantId);
+        if(!StrUtil.isBlankIfStr(processDefinition)){
             return getDiagram(processDefinition.getId(),null);
         }
         return null;
