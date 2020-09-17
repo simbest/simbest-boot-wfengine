@@ -213,7 +213,7 @@
     <logger name="org.flowable" level="INFO" />
 
     <!-- 生产环境下，将此级别配置为适合的级别，以免日志文件太多或影响程序性能 -->
-    <springProfile name="dev,uat,test,prd">
+    <springProfile name="dev,uat,test,prd,uat11">
         <root level="DEBUG">
             <appender-ref ref="FILEERROR" /> <!--只记录ERRRO级别以上日志-->
             <appender-ref ref="FILEWARN" />  <!--只记录WARN级别以上日志-->
@@ -223,7 +223,7 @@
         </root>
     </springProfile>
 
-    <springProfile name="prd">
+    <springProfile name="prd,uat11">
         <root level="INFO">
             <appender-ref ref="FILEERROR" /> <!--只记录ERRRO级别以上日志-->
             <appender-ref ref="FILEWARN" />  <!--只记录WARN级别以上日志-->

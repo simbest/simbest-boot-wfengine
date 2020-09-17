@@ -105,17 +105,29 @@ public class ProcessInstancesController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "processInstanceIds", value = "实例ID（如果是多个，逗号分割）", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "processDefinitionId", value = "流程定义ID", dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "version", value = "版本号", dataType = "Integer", paramType = "query")
+            @ApiImplicitParam(name = "version", value = "版本号", dataType = "Integer", paramType = "query"),
+            @ApiImplicitParam(name = "tenantId", value = "租户id", dataType = "String", paramType = "query")
     })
     @PostMapping(value = {"/upgradeProcessInstanceVersion","/sso/upgradeProcessInstanceVersion","/api/upgradeProcessInstanceVersion","/anonymous/upgradeProcessInstanceVersion"})
-    public JsonResponse upgradeProcessInstanceVersion (String processInstanceIds,String processDefinitionId,Integer version) {
+    public JsonResponse upgradeProcessInstanceVersion (String processInstanceIds,String processDefinitionId,Integer version , String tenantId) {
         /*if(processDefinitionId == null && version == null){
             return JsonResponse.fail("流程定义ID和版本号至少要填写一个！");
         }else{
             processInstancesService.upgradeProcessInstanceVersion(processInstanceIds,processDefinitionId,version);
             return JsonResponse.success("升级成功！");
         }*/
-        processInstancesService.upgradeProcessInstanceVersion(processInstanceIds,processDefinitionId,version);
+        processInstancesService.upgradeProcessInstanceVersion(processInstanceIds,processDefinitionId,version , tenantId);
         return JsonResponse.success("升级成功！");
+    }
+
+    @ApiOperation(value = "根据流程定义id校验当前流程版本是否为最新版本")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "processInstanceId" , value = "实例ID", dataType = "string", paramType = "query"),
+            @ApiImplicitParam(name = "tenantId" , value = "租户id", dataType = "string", paramType = "query"),
+    })
+    @PostMapping(value = {"/checkIsLastVersion" , "/sso/checkIsLastVersion" , "/api/checkIsLastVersion" , "/anonymous/checkIsLastVersion"})
+    public JsonResponse checkIsLastVersion(String processInstanceId , String tenantId) {
+        Map<String , Boolean> map = processInstancesService.checkIsLastVersion(processInstanceId , tenantId);
+        return JsonResponse.success(map);
     }
 }

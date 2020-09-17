@@ -3,6 +3,7 @@ package com.simbest.boot.wfengine.provide.processInstances.service.impl;/**
  * @create 2019/12/3 19:31.
  */
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Maps;
@@ -218,7 +219,7 @@ public class ProcessInstancesServiceImpl implements IProcessInstancesService {
      * @param version
      */
     @Override
-    public void upgradeProcessInstanceVersion(String processInstanceIds, String processDefinitionId,Integer version) {
+    public void upgradeProcessInstanceVersion(String processInstanceIds, String processDefinitionId,Integer version , String tenantId) {
         Integer versionDef = 0;
         /*if(StrUtil.isNotBlank(processDefinitionId)){
             ProcessDefinition processDefinition = baseFlowableProcessApi.getRepositoryService().createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
@@ -228,15 +229,54 @@ public class ProcessInstancesServiceImpl implements IProcessInstancesService {
         for(String processInstanceId : processInstanceIdArray){
             ProcessInstance processInstance = baseFlowableProcessApi.getRuntimeService().createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
             if(processInstance!=null){
-                if(versionDef == 0 && version!=null){
+                if(versionDef == 0){
                     //ProcessDefinition processDefinition = baseFlowableProcessApi.getRepositoryService().createProcessDefinitionQuery().processDefinitionKey(processInstance.getProcessDefinitionKey()).processDefinitionVersion(version).singleResult();
-                    ProcessDefinition processDefinition = baseFlowableProcessApi.getRepositoryService().createProcessDefinitionQuery().processDefinitionKey(processInstance.getProcessDefinitionKey()).latestVersion().singleResult();
-                    versionDef = processDefinition.getVersion();
+                    /*List<ProcessDefinition> processDefinitions = baseFlowableProcessApi.getRepositoryService().createProcessDefinitionQuery().processDefinitionKey(processInstance.getProcessDefinitionKey()).latestVersion().list();*/
+                    List<ProcessDefinition> processDefinitions = baseFlowableProcessApi.getRepositoryService().createProcessDefinitionQuery()
+                            .processDefinitionTenantId(tenantId)
+                            .processDefinitionKey(processInstance.getProcessDefinitionKey())
+                            .latestVersion()
+                            .list();
+                    if(CollUtil.isNotEmpty(processDefinitions)){
+                        ProcessDefinition processDefinition = processDefinitions.get(0);
+                        versionDef = processDefinition.getVersion();
+                    }
+
                 }
                 if(versionDef > 0) {
                     baseFlowableProcessApi.getManagementServices().executeCommand(new SetProcessDefinitionVersionCmd(processInstanceId, versionDef));
                 }
             }
         }
+    }
+
+    /**
+     * 根据流程定义id校验当前流程版本是否为最新版本
+     * @param processInstanceId 实例id
+     * @param tenantId          租户id
+     * @return
+     */
+    @Override
+    public Map<String, Boolean> checkIsLastVersion(String processInstanceId, String tenantId) {
+        Map<String, Boolean> map = Maps.newHashMap();
+        Boolean isLastVersion = Boolean.FALSE;
+        try {
+            ProcessInstance processInstance = baseFlowableProcessApi.getRuntimeService().createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+            if(processInstance!=null){
+                List<ProcessDefinition> processDefinitions = baseFlowableProcessApi.getRepositoryService().createProcessDefinitionQuery()
+                        .processDefinitionTenantId(tenantId)
+                        .processDefinitionKey(processInstance.getProcessDefinitionKey())
+                        .latestVersion()
+                        .list();
+                if(CollUtil.isNotEmpty(processDefinitions)){
+                    ProcessDefinition processDefinition = processDefinitions.get(0);
+                    isLastVersion = processInstance.getProcessDefinitionVersion() == processDefinition.getVersion();
+                }
+            }
+        }catch (Exception  e ) {
+            Exceptions.printException(e);
+        }
+        map.put("isLastVersion" , isLastVersion);
+        return map;
     }
 }

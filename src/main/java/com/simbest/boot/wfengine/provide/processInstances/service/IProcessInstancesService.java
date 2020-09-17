@@ -29,5 +29,13 @@ public interface IProcessInstancesService {
 
     void deleteProcessInstance(String processInstanceId);
 
-    void upgradeProcessInstanceVersion(String processInstanceIds, String processDefinitionId, Integer version);
+    void upgradeProcessInstanceVersion(String processInstanceIds, String processDefinitionId, Integer version ,String tenantId);
+
+    /**
+     * 根据流程定义id校验当前流程版本是否为最新版本
+     * @param processInstanceId 实例id
+     * @param tenantId          租户id
+     * @return
+     */
+    Map<String, Boolean> checkIsLastVersion(String processInstanceId, String tenantId);
 }
