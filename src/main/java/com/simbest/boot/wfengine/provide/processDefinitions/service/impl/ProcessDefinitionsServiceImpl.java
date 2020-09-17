@@ -3,6 +3,7 @@ package com.simbest.boot.wfengine.provide.processDefinitions.service.impl;/**
  * @create 2019/12/3 18:49.
  */
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.simbest.boot.wfengine.api.BaseFlowableProcessApi;
 import com.simbest.boot.wfengine.provide.processDefinitions.service.IProcessDefinitionsService;
@@ -139,7 +140,7 @@ public class ProcessDefinitionsServiceImpl implements IProcessDefinitionsService
                     .processDefinitionKey(processDefinitionKey)
                     .processDefinitionVersion(Integer.parseInt(version))
                     .list();
-            if(list!=null && list.size()>0){
+            if(CollUtil.isNotEmpty(list)){
                 return list.get(0);
             }
         }
@@ -149,7 +150,7 @@ public class ProcessDefinitionsServiceImpl implements IProcessDefinitionsService
                     .processDefinitionKey(processDefinitionKey)
                     .latestVersion()
                     .list();
-            if(list!=null && list.size()>0){
+            if(CollUtil.isNotEmpty(list)){
                 return list.get(0);
             }
         }
