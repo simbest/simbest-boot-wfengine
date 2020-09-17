@@ -109,11 +109,13 @@ public class ProcessInstancesController {
     })
     @PostMapping(value = {"/upgradeProcessInstanceVersion","/sso/upgradeProcessInstanceVersion","/api/upgradeProcessInstanceVersion","/anonymous/upgradeProcessInstanceVersion"})
     public JsonResponse upgradeProcessInstanceVersion (String processInstanceIds,String processDefinitionId,Integer version) {
-        if(processDefinitionId == null && version == null){
+        /*if(processDefinitionId == null && version == null){
             return JsonResponse.fail("流程定义ID和版本号至少要填写一个！");
         }else{
             processInstancesService.upgradeProcessInstanceVersion(processInstanceIds,processDefinitionId,version);
             return JsonResponse.success("升级成功！");
-        }
+        }*/
+        processInstancesService.upgradeProcessInstanceVersion(processInstanceIds,processDefinitionId,version);
+        return JsonResponse.success("升级成功！");
     }
 }

@@ -4,6 +4,7 @@ package com.simbest.boot.wfengine.provide.processInstances.service.impl;/**
  */
 
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Maps;
 import com.simbest.boot.base.exception.Exceptions;
 import com.simbest.boot.util.json.JacksonUtils;
@@ -36,6 +37,7 @@ import java.util.Map;
  **/
 @Slf4j
 @Service
+@SuppressWarnings("ALL")
 public class ProcessInstancesServiceImpl implements IProcessInstancesService {
 
     @Autowired
@@ -200,7 +202,7 @@ public class ProcessInstancesServiceImpl implements IProcessInstancesService {
                 .processInstanceId(processInstanceId)
                 .singleResult();
 
-        if(pi==null){
+        if(StrUtil.isEmptyIfStr(pi)){
         //该流程实例已经完成了
             baseFlowableProcessApi.getHistoryService().deleteHistoricProcessInstance(processInstanceId);
         }else{
@@ -218,19 +220,20 @@ public class ProcessInstancesServiceImpl implements IProcessInstancesService {
     @Override
     public void upgradeProcessInstanceVersion(String processInstanceIds, String processDefinitionId,Integer version) {
         Integer versionDef = 0;
-        if(processDefinitionId!=null){
+        /*if(StrUtil.isNotBlank(processDefinitionId)){
             ProcessDefinition processDefinition = baseFlowableProcessApi.getRepositoryService().createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
             versionDef = processDefinition.getVersion();
-        }
+        }*/
         String[] processInstanceIdArray = processInstanceIds.split(",");
         for(String processInstanceId : processInstanceIdArray){
             ProcessInstance processInstance = baseFlowableProcessApi.getRuntimeService().createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
             if(processInstance!=null){
                 if(versionDef == 0 && version!=null){
-                    ProcessDefinition processDefinition = baseFlowableProcessApi.getRepositoryService().createProcessDefinitionQuery().processDefinitionKey(processInstance.getProcessDefinitionKey()).processDefinitionVersion(version).singleResult();
+                    //ProcessDefinition processDefinition = baseFlowableProcessApi.getRepositoryService().createProcessDefinitionQuery().processDefinitionKey(processInstance.getProcessDefinitionKey()).processDefinitionVersion(version).singleResult();
+                    ProcessDefinition processDefinition = baseFlowableProcessApi.getRepositoryService().createProcessDefinitionQuery().processDefinitionKey(processInstance.getProcessDefinitionKey()).latestVersion().singleResult();
                     versionDef = processDefinition.getVersion();
                 }
-                if(versionDef>0) {
+                if(versionDef > 0) {
                     baseFlowableProcessApi.getManagementServices().executeCommand(new SetProcessDefinitionVersionCmd(processInstanceId, versionDef));
                 }
             }
