@@ -17,10 +17,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -186,7 +183,6 @@ public class ProcessTasksController {
         }else{
             return JsonResponse.fail("当前流程只有一个执行实例，请使用常规API办理流程");
         }
-
     }
 
     @ApiOperation(value = "多实例加签")
@@ -205,9 +201,15 @@ public class ProcessTasksController {
     })
     @PostMapping(value = {"/deleteMultiInstanceExecution","/sso/deleteMultiInstanceExecution","/api/deleteMultiInstanceExecution","/anonymous/deleteMultiInstanceExecution"})
     public JsonResponse deleteMultiInstanceExecution (String taskId) {
-
         processTasksService.deleteMultiInstanceExecution(taskId,false);
         return JsonResponse.success("操作成功！");
+    }
 
+    @ApiOperation(value = "获取当前环节出去的连线")
+    @ApiImplicitParams({@ApiImplicitParam(name = "taskId", value = "任务Id", dataType = "String", paramType = "query") })
+    @PostMapping(value = {"/getNextFlowNodes","/sso/getNextFlowNodes","/api/getNextFlowNodes","/anonymous/getNextFlowNodes"})
+    public JsonResponse getNextFlowNodes(@RequestParam(required = false) String taskId) {
+        List<Map<String,Object>> nextNodes = processTasksService.getNextFlowNodes(taskId);
+        return JsonResponse.success(nextNodes);
     }
 }

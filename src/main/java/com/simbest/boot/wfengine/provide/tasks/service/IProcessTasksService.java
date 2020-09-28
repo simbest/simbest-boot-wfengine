@@ -8,8 +8,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author Administrator
- * @create 2019/12/3 21:58.
+ * <strong>Title : ProcessTasksServiceImpl流程环节实例操作</strong><br>
+ * <strong>Description : </strong><br>
+ * <strong>Create on : 2020/9/28</strong><br>
+ * <strong>Modify on : 2020/9/28</strong><br>
+ * <strong>Copyright (C) Ltd.</strong><br>
+ *
+ * @author LJW lijianwu@simbest.com.cn
+ * @version <strong>V1.0.0</strong><br>
+ *          <strong>修改历史:</strong><br>
+ *          修改人 修改日期 修改描述<br>
+ *          -------------------------------------------<br>
  */
 public interface IProcessTasksService {
     int tasksComplete(String taskId, String stringJson);
@@ -88,4 +97,11 @@ public interface IProcessTasksService {
      * @return
      */
     public SequenceFlow getSequenceFlow(String processInstanceId, String sourceRef, String targetRef);
+
+    /**
+     * 获取当前环节出去的连线
+     * @param taskId    任务ID
+     * @return
+     */
+    List<Map<String,Object>> getNextFlowNodes(String taskId);
 }

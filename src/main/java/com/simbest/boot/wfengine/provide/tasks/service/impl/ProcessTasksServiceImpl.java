@@ -1,7 +1,4 @@
-package com.simbest.boot.wfengine.provide.tasks.service.impl;/**
- * @author Administrator
- * @create 2019/12/3 21:58.
- */
+package com.simbest.boot.wfengine.provide.tasks.service.impl;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
@@ -22,13 +19,15 @@ import com.simbest.boot.wfengine.rabbitmq.service.IMqSendService;
 import com.simbest.boot.wfengine.util.ConstansAction;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.map.HashedMap;
-import org.flowable.bpmn.model.BpmnModel;
-import org.flowable.bpmn.model.FlowElement;
+import org.apache.commons.compress.utils.Lists;
+import org.flowable.bpmn.model.*;
 import org.flowable.bpmn.model.Process;
-import org.flowable.bpmn.model.SequenceFlow;
 import org.flowable.common.engine.impl.identity.Authentication;
+import org.flowable.engine.ProcessEngine;
+import org.flowable.engine.ProcessEngines;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.impl.persistence.entity.ActivityInstanceEntityImpl;
+import org.flowable.engine.impl.persistence.entity.ExecutionEntity;
 import org.flowable.engine.impl.persistence.entity.ExecutionEntityImpl;
 import org.flowable.engine.impl.persistence.entity.HistoricActivityInstanceEntityImpl;
 import org.flowable.engine.runtime.Execution;
@@ -46,14 +45,21 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *@ClassName ProcessTasksServiceImpl
- *@Description TODO
- *@Author Administrator
- *@Date 2019/12/3 21:58
- *@Version 1.0
- **/
+ * <strong>Title : ProcessTasksServiceImpl流程环节实例操作</strong><br>
+ * <strong>Description : </strong><br>
+ * <strong>Create on : 2020/9/28</strong><br>
+ * <strong>Modify on : 2020/9/28</strong><br>
+ * <strong>Copyright (C) Ltd.</strong><br>
+ *
+ * @author LJW lijianwu@simbest.com.cn
+ * @version <strong>V1.0.0</strong><br>
+ *          <strong>修改历史:</strong><br>
+ *          修改人 修改日期 修改描述<br>
+ *          -------------------------------------------<br>
+ */
 @Slf4j
 @Service("processTasksServiceImpl")
+@SuppressWarnings("ALL")
 public class ProcessTasksServiceImpl implements IProcessTasksService {
 
     @Autowired
@@ -447,6 +453,38 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
         log.error("找不到对应的连接线，请检查参数：processInstanceId："+processInstanceId+";sourceRef:"+sourceRef+";targetRef:"+targetRef);
         return null;
 
+    }
+
+    /**
+     * 获取当前环节出去的连线
+     * @param taskId    任务ID
+     * @return
+     */
+    @Override
+    public List<Map<String, Object>> getNextFlowNodes(String taskId) {
+        try {
+            ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
+            processEngine.getProcessEngineConfiguration().getAsyncExecutor().setAutoActivate(true);
+            Task task = processEngine.getTaskService().createTaskQuery().taskId(taskId).singleResult();
+            ExecutionEntity ee = (ExecutionEntity) processEngine.getRuntimeService().createExecutionQuery().executionId(task.getExecutionId()).singleResult();
+            // 当前审批节点
+            String crruentActivityId = ee.getActivityId();
+            BpmnModel bpmnModel = processEngine.getRepositoryService().getBpmnModel(task.getProcessDefinitionId());
+            FlowNode flowNode = (FlowNode) bpmnModel.getFlowElement(crruentActivityId);
+            // 输出连线
+            List<SequenceFlow> outFlows = flowNode.getOutgoingFlows();
+            List<Map<String,Object>> nextNodes = Lists.newArrayList();
+            for (SequenceFlow sequenceFlow : outFlows) {
+                Map<String,Object> sequenceFlowNode = Maps.newConcurrentMap();
+                sequenceFlowNode.putIfAbsent("taskDefId",sequenceFlow.getId());
+                sequenceFlowNode.putIfAbsent("sourceRef",sequenceFlow.getSourceRef());
+                sequenceFlowNode.putIfAbsent("targetRef",sequenceFlow.getTargetRef());
+                nextNodes.add(sequenceFlowNode);
+            }
+        }catch (Exception e){
+            Exceptions.printException( e );
+        }
+        return null;
     }
 
     private boolean finshTask(Task task) {
