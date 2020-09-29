@@ -270,7 +270,7 @@
                 <spring.datasource.druid.filter.wall.enabled>true</spring.datasource.druid.filter.wall.enabled>
                 <spring.datasource.url>jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=10.87.42.101)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.87.42.102)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.87.42.103)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.87.42.104)(PORT=1521))(FAILOVER=on)(LOAD_BALANCE=off))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=PDB_ANDDOC)(failover_mode=(type=select)(method=basic))))</spring.datasource.url>
                 <spring.datasource.username>WFENGINE</spring.datasource.username>
-                <spring.datasource.password>Simbest#168</spring.datasource.password>
+                <spring.datasource.password>Wodo#6689</spring.datasource.password>
                 <spring.redis.config.type>dictValueRedis</spring.redis.config.type>
                 <spring.redis.config.type.redis>redis-6-11-6666</spring.redis.config.type.redis>
                 <spring.redis.cluster.password>Xianzai@0528</spring.redis.cluster.password>

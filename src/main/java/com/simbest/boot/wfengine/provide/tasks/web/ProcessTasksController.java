@@ -3,9 +3,12 @@ package com.simbest.boot.wfengine.provide.tasks.web;/**
  * @create 2019/12/3 21:57.
  */
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.Dict;
 import com.google.common.collect.Maps;
 import com.simbest.boot.base.exception.GlobalExceptionRegister;
 import com.simbest.boot.base.web.response.JsonResponse;
+import com.simbest.boot.util.MapUtil;
 import com.simbest.boot.util.json.JacksonUtils;
 import com.simbest.boot.wfengine.provide.tasks.model.NewTaskInfo;
 import com.simbest.boot.wfengine.provide.tasks.model.ProcessTasksInfo;
@@ -19,6 +22,8 @@ import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -136,7 +141,32 @@ public class ProcessTasksController {
             @ApiImplicitParam(name = "variables", value = "任务参数", dataType = "Map", paramType = "query")
     })
     @PostMapping(value = {"/createTaskEntityImpls","/sso/createTaskEntityImpls","/api/createTaskEntityImpls","/anonymous/createTaskEntityImpls"})
-    public JsonResponse createTaskEntityImpls (@RequestBody NewTaskInfo newTaskInfo) {
+    //public JsonResponse createTaskEntityImpls (@RequestBody Map<String,Object> map) throws Exception {
+    public JsonResponse createTaskEntityImpls (@RequestParam String sourceTaskDefinitionKey,
+                                               @RequestParam String assignees,
+                                               @RequestParam String taskName,
+                                               @RequestParam String taskDefinitionKey,
+                                               @RequestParam String processDefinitionId,
+                                               @RequestParam String processInstanceId,
+                                               @RequestParam String tenantId,
+                                               @RequestParam String fromTaskId,
+                                               @RequestParam String participantIdentitys) {
+        List<String> assigneeList = Arrays.asList(assignees.split(","));
+        Map<String , Object> variables = Dict.create()
+                .set("tenantId", tenantId)
+                .set("processDefinitionId", processDefinitionId)
+                .set("fromTaskId", fromTaskId)
+                .set("participantIdentitys", participantIdentitys);
+        processTasksService.createTaskEntityImpls(sourceTaskDefinitionKey,
+                assigneeList,
+                taskName,
+                taskDefinitionKey,
+                processInstanceId,
+                processDefinitionId,
+                tenantId,
+                variables);
+        /*log.warn("接收参数【{}】" , map.toString());
+        NewTaskInfo newTaskInfo = (NewTaskInfo) MapUtil.mapToObject(map, NewTaskInfo.class);
         processTasksService.createTaskEntityImpls(newTaskInfo.getSourceTaskDefinitionKey(),
                 newTaskInfo.getAssignees(),
                 newTaskInfo.getTaskName(),
@@ -144,7 +174,7 @@ public class ProcessTasksController {
                 newTaskInfo.getProcessInstanceId(),
                 newTaskInfo.getProcessDefinitionId(),
                 newTaskInfo.getTenantId(),
-                newTaskInfo.getVariables());
+                newTaskInfo.getVariables());*/
         return JsonResponse.success("操作成功！");
     }
 
@@ -160,15 +190,37 @@ public class ProcessTasksController {
             @ApiImplicitParam(name = "variables", value = "任务参数", dataType = "Map", paramType = "query")
     })
     @PostMapping(value = {"/createTaskEntityImpl","/sso/createTaskEntityImpl","/api/createTaskEntityImpl","/anonymous/createTaskEntityImpl"})
-    public JsonResponse createTaskEntityImpl (@RequestBody NewTaskInfo newTaskInfo) {
-        processTasksService.createTaskEntityImpl(newTaskInfo.getSourceTaskDefinitionKey(),
+    //public JsonResponse createTaskEntityImpl (@RequestBody Map<String,Object> map) throws Exception {
+    public JsonResponse createTaskEntityImpl (@RequestParam String sourceTaskDefinitionKey,
+                                              @RequestParam String assignee,
+                                              @RequestParam String taskName,
+                                              @RequestParam String taskDefinitionKey,
+                                              @RequestParam String processDefinitionId,
+                                              @RequestParam String processInstanceId,
+                                              @RequestParam String tenantId,
+                                              @RequestParam String fromTaskId,
+                                              @RequestParam String participantIdentitys) {
+        Map<String , Object> variables = Dict.create()
+                .set("tenantId", tenantId)
+                .set("processDefinitionId", processDefinitionId)
+                .set("fromTaskId", fromTaskId)
+                .set("participantIdentitys", participantIdentitys);
+        processTasksService.createTaskEntityImpl(sourceTaskDefinitionKey,
+                assignee,
+                taskName,
+                taskDefinitionKey,
+                processInstanceId,
+                processDefinitionId,
+                tenantId,
+                variables);
+        /*processTasksService.createTaskEntityImpl(newTaskInfo.getSourceTaskDefinitionKey(),
                 newTaskInfo.getAssignee(),
                 newTaskInfo.getTaskName(),
                 newTaskInfo.getTaskDefinitionKey(),
                 newTaskInfo.getProcessInstanceId(),
                 newTaskInfo.getProcessDefinitionId(),
                 newTaskInfo.getTenantId(),
-                newTaskInfo.getVariables());
+                newTaskInfo.getVariables());*/
         return JsonResponse.success("操作成功！");
     }
 
