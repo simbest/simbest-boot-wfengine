@@ -479,8 +479,10 @@ public class ProcessTasksServiceImpl implements IProcessTasksService {
                 sequenceFlowNode.putIfAbsent("taskDefId",sequenceFlow.getId());
                 sequenceFlowNode.putIfAbsent("sourceRef",sequenceFlow.getSourceRef());
                 sequenceFlowNode.putIfAbsent("targetRef",sequenceFlow.getTargetRef());
+                sequenceFlowNode.putIfAbsent("outcome" , sequenceFlow.getConditionExpression());
                 nextNodes.add(sequenceFlowNode);
             }
+            return nextNodes;
         }catch (Exception e){
             Exceptions.printException( e );
         }
