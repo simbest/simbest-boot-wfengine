@@ -257,9 +257,10 @@ public class ProcessInstancesServiceImpl implements IProcessInstancesService {
      * @return
      */
     @Override
-    public Map<String, Boolean> checkIsLastVersion(String processInstanceId, String tenantId) {
-        Map<String, Boolean> map = Maps.newHashMap();
+    public Map<String, Object> checkIsLastVersion(String processInstanceId, String tenantId) {
+        Map<String, Object> map = Maps.newHashMap();
         Boolean isLastVersion = Boolean.FALSE;
+        String newProcessDefinitionId = "";
         try {
             ProcessInstance processInstance = baseFlowableProcessApi.getRuntimeService().createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
             if(processInstance!=null){
@@ -271,12 +272,16 @@ public class ProcessInstancesServiceImpl implements IProcessInstancesService {
                 if(CollUtil.isNotEmpty(processDefinitions)){
                     ProcessDefinition processDefinition = processDefinitions.get(0);
                     isLastVersion = processInstance.getProcessDefinitionVersion() == processDefinition.getVersion();
+                    if (!isLastVersion) {
+                        newProcessDefinitionId  =  processDefinition.getId();
+                    }
                 }
             }
         }catch (Exception  e ) {
             Exceptions.printException(e);
         }
         map.put("isLastVersion" , isLastVersion);
+        map.put("newProcessDefinitionId" , newProcessDefinitionId);
         return map;
     }
 }

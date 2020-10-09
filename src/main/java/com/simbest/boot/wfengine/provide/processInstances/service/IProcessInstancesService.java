@@ -37,5 +37,5 @@ public interface IProcessInstancesService {
      * @param tenantId          租户id
      * @return
      */
-    Map<String, Boolean> checkIsLastVersion(String processInstanceId, String tenantId);
+    Map<String, Object> checkIsLastVersion(String processInstanceId, String tenantId);
 }

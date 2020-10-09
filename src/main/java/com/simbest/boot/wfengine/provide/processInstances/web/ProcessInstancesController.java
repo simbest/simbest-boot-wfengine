@@ -127,7 +127,7 @@ public class ProcessInstancesController {
     })
     @PostMapping(value = {"/checkIsLastVersion" , "/sso/checkIsLastVersion" , "/api/checkIsLastVersion" , "/anonymous/checkIsLastVersion"})
     public JsonResponse checkIsLastVersion(String processInstanceId , String tenantId) {
-        Map<String , Boolean> map = processInstancesService.checkIsLastVersion(processInstanceId , tenantId);
+        Map<String , Object> map = processInstancesService.checkIsLastVersion(processInstanceId , tenantId);
         return JsonResponse.success(map);
     }
 }
